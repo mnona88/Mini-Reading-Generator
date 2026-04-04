@@ -1,90 +1,3 @@
-
-
-Create a simple, elegant single-page web app for generating a personalized mini reading. Goal: This app is for me to quickly generate a short, refined English reading based on my observations of a person. It should feel luxurious, feminine, intelligent, restrained, and slightly haunting in a so
-
-pasted
-
-Make the reading feel uncannily accurate, not just elegant.
-Important accuracy rules:
-- Identify one specific tension, contradiction, or restraint in the person
-- Point out something that feels privately true, not publicly obvious
-- Use at least one observation that links appearance and emotion together
-- Do not stay abstract for more than one sentence
-- Avoid vague praise
-- Avoid generic statements that could apply to anyone
-- Make the person feel “seen,” especially in the gap between what they show and what they hold back
-- Suggest emotional precision, not fantasy
-- The best lines should feel like: “That is exactly what people notice but never say out loud.”
-
-Show more
-3:43 PM
-
-Architected emotionally precise reading generator with refined aesthetic and API integration
-Architected emotionally precise reading generator with refined aesthetic and API integration
-The app is built and ready. A few things worth noting about how the accuracy rules are wired in:
-
-What's different from a generic reading generator:
-
-The prompt architecture forces the model to do specific work before writing — it has to locate the tension first (between the jaw tension and the careful word-choice, the contained body language and the muted palette), then write from that tension rather than floating above it. Generic generators ask for elegance. This one demands a specific observation that earns each sentence.
-
-The prompt explicitly forbids:
-
-Lines that could apply to anyone
-Abstraction past the first sentence
-Vague praise
-The gap between appearance and emotion kept separate
-On the product connection — if you toggle it on, the model is instructed to work it in as a sensory echo of what it already observed, not as a recommendation. One sentence maximum, never named like an ad.
-
-To use: Open the HTML file locally in any browser. The app calls the Anthropic API directly from the browser — no backend needed. It will use your API key from the environment automatically.
-
-Mini reading generator
-Code · HTML 
-
-Please update the existing “Mini Reading Generator” app. Do not rebuild from scratch. Modify the current app so it becomes much easier and faster to use by replacing most free-text observation fields with button-based or chip-based selectable options. Main goal: I want this app to feel elega
-
-pasted
-
-Refine the chip-based UI so it feels more premium and editorial.
-Make the layout visually calmer, reduce clutter, and ensure the selected states are elegant and obvious.
-The experience should feel like a luxury private tool, not a generic form.
-
-3:55 PM
-
-Architected premium chip interface with refined aesthetic and elegant selection states
-Architected premium chip interface with refined aesthetic and elegant selection states
-Now I'll rewrite the full app with the chip UI system and all refinements.
-
-
-Created 2 files, ran a command, read a file
-Created 2 files, ran a command, read a file
-Here's what changed and why each decision was made:
-
-Chip system
-
-Unselected: ivory pill, taupe border, soft charcoal text — quiet, available
-Selected: solid charcoal fill, ivory text — unambiguous, premium
-"Other" selected: bronze fill — visually distinct, signals it's an open field
-Disabled (at max 2): 32% opacity with pointer-events off — graceful, not harsh
-0.1s scale-down on click — adds just enough tactility without feeling toy-like
-Layout logic
-
-Three named sections (Reading / Observation / Refinement) separated by fading gradient dividers — gives the form a sense of pace, not a wall of options
-Age range stays as its own pill row, visually lighter than the full chip grids
-Product connection and its conditional field share a two-column row — the reveal doesn't shift the layout
-Prompt accuracy upgrades Added an internal pre-writing step the model must complete before writing: identify the tension, name what's privately true, find where appearance and inner state intersect. The instruction is framed as a prerequisite, not a suggestion — "if you cannot name it specifically, you have not read carefully enough."
-
-Clear resets everything: chips, disabled states, Other inputs, age, selects, notes, and output.
-
-Mini reading generator
-Code · HTML 
-
-
-
-
-Claude is AI and can make mistakes. Please double-check responses.
-Mini reading generator · HTML
-Copy
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -95,7 +8,7 @@ Copy
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- 
+
 :root {
   --ivory:        #F7F3EC;
   --ivory-deep:   #EDE8DF;
@@ -114,9 +27,9 @@ Copy
   --shadow:       rgba(42,36,32,0.055);
   --shadow-deep:  rgba(42,36,32,0.10);
 }
- 
+
 html { scroll-behavior: smooth; }
- 
+
 body {
   background-color: var(--ivory);
   color: var(--charcoal);
@@ -128,7 +41,7 @@ body {
   overflow-x: hidden;
   position: relative;
 }
- 
+
 body::before {
   content: '';
   position: fixed;
@@ -137,7 +50,7 @@ body::before {
   pointer-events: none;
   z-index: 0;
 }
- 
+
 .page-wrapper {
   max-width: 660px;
   margin: 0 auto;
@@ -145,14 +58,14 @@ body::before {
   position: relative;
   z-index: 1;
 }
- 
+
 /* ─── Header ─── */
 .site-header {
   text-align: center;
   margin-bottom: 52px;
   animation: fadeUp 0.85s ease both;
 }
- 
+
 .ornament {
   display: flex;
   align-items: center;
@@ -174,7 +87,7 @@ body::before {
   transform: rotate(45deg);
   opacity: 0.5;
 }
- 
+
 .site-title {
   font-family: 'Cormorant Garamond', serif;
   font-weight: 300;
@@ -184,7 +97,7 @@ body::before {
   line-height: 1.08;
   margin-bottom: 12px;
 }
- 
+
 .site-subtitle {
   font-size: 10.5px;
   letter-spacing: 0.24em;
@@ -192,7 +105,7 @@ body::before {
   color: var(--taupe);
   font-weight: 400;
 }
- 
+
 /* ─── Card ─── */
 .form-card {
   background: var(--white);
@@ -206,12 +119,12 @@ body::before {
     0 1px 3px var(--shadow-deep);
   animation: fadeUp 0.85s 0.12s ease both;
 }
- 
+
 @media (max-width: 520px) {
   .form-card { padding: 28px 20px; }
   .page-wrapper { padding: 40px 16px 80px; }
 }
- 
+
 /* ─── Section label ─── */
 .section-label {
   font-family: 'Cormorant Garamond', serif;
@@ -230,12 +143,12 @@ body::before {
   height: 1px;
   background: linear-gradient(90deg, var(--border), transparent);
 }
- 
+
 /* ─── Field ─── */
 .field {
   margin-bottom: 26px;
 }
- 
+
 .field-label {
   font-size: 10px;
   letter-spacing: 0.2em;
@@ -245,7 +158,7 @@ body::before {
   margin-bottom: 10px;
   display: block;
 }
- 
+
 .field-hint {
   font-size: 10px;
   color: var(--taupe);
@@ -254,7 +167,7 @@ body::before {
   display: block;
   font-style: italic;
 }
- 
+
 /* ─── Inputs ─── */
 input[type="text"], textarea, select {
   width: 100%;
@@ -277,7 +190,7 @@ input[type="text"]:focus, textarea:focus, select:focus {
   background: var(--white);
 }
 textarea { resize: vertical; min-height: 66px; line-height: 1.6; }
- 
+
 .select-wrap { position: relative; }
 .select-wrap::after {
   content: '›';
@@ -291,14 +204,14 @@ textarea { resize: vertical; min-height: 66px; line-height: 1.6; }
 }
 select { padding-right: 32px; cursor: pointer; }
 ::placeholder { color: var(--taupe); opacity: 0.75; }
- 
+
 /* ─── Age buttons ─── */
 .age-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
 }
- 
+
 .age-btn {
   padding: 7px 17px;
   border-radius: 50px;
@@ -326,14 +239,14 @@ select { padding-right: 32px; cursor: pointer; }
   color: var(--ivory);
 }
 .age-btn:active { transform: scale(0.97); }
- 
+
 /* ─── Chips ─── */
 .chip-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
 }
- 
+
 .chip {
   padding: 7px 14px;
   border-radius: 50px;
@@ -372,7 +285,7 @@ select { padding-right: 32px; cursor: pointer; }
   cursor: default;
   pointer-events: none;
 }
- 
+
 /* Other reveal */
 .other-reveal {
   display: none;
@@ -380,7 +293,7 @@ select { padding-right: 32px; cursor: pointer; }
   animation: fadeIn 0.22s ease both;
 }
 .other-reveal.visible { display: block; }
- 
+
 /* ─── Two-col layout ─── */
 .row-two {
   display: grid;
@@ -388,14 +301,14 @@ select { padding-right: 32px; cursor: pointer; }
   gap: 20px;
 }
 @media (max-width: 460px) { .row-two { grid-template-columns: 1fr; } }
- 
+
 /* ─── Divider ─── */
 .divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--border), transparent);
   margin: 32px 0;
 }
- 
+
 /* ─── Generate btn ─── */
 .btn-generate {
   width: 100%;
@@ -415,9 +328,9 @@ select { padding-right: 32px; cursor: pointer; }
 .btn-generate:hover { background: var(--bronze); }
 .btn-generate:active { transform: scale(0.993); }
 .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
- 
+
 .btn-inner { display: flex; align-items: center; justify-content: center; gap: 10px; }
- 
+
 .loading-dots { display: none; align-items: center; gap: 4px; }
 .loading-dots span {
   width: 3.5px; height: 3.5px;
@@ -427,7 +340,7 @@ select { padding-right: 32px; cursor: pointer; }
 }
 .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
 .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
- 
+
 /* ─── Error ─── */
 .error-msg {
   display: none;
@@ -441,14 +354,14 @@ select { padding-right: 32px; cursor: pointer; }
   line-height: 1.55;
 }
 .error-msg.visible { display: block; }
- 
+
 /* ─── Output ─── */
 .output-section {
   display: none;
   animation: fadeUp 0.65s ease both;
 }
 .output-section.visible { display: block; }
- 
+
 .output-card {
   background: var(--white);
   border: 1px solid var(--border);
@@ -460,7 +373,7 @@ select { padding-right: 32px; cursor: pointer; }
     0 1px 3px var(--shadow-deep);
 }
 @media (max-width: 520px) { .output-card { padding: 28px 20px; } }
- 
+
 .output-eyebrow {
   font-family: 'Cormorant Garamond', serif;
   font-size: 9.5px;
@@ -478,7 +391,7 @@ select { padding-right: 32px; cursor: pointer; }
   height: 1px;
   background: linear-gradient(90deg, var(--border), transparent);
 }
- 
+
 .reading-text {
   font-family: 'Cormorant Garamond', serif;
   font-size: 20px;
@@ -491,7 +404,7 @@ select { padding-right: 32px; cursor: pointer; }
 }
 .reading-text p { margin-bottom: 1.35em; }
 .reading-text p:last-child { margin-bottom: 0; }
- 
+
 .cursor-blink {
   display: inline-block;
   width: 1px;
@@ -501,7 +414,7 @@ select { padding-right: 32px; cursor: pointer; }
   margin-left: 2px;
   animation: blink 0.8s ease-in-out infinite;
 }
- 
+
 .output-actions {
   display: flex;
   gap: 10px;
@@ -530,7 +443,7 @@ select { padding-right: 32px; cursor: pointer; }
   background: rgba(196,164,107,0.05);
 }
 .btn-action.copied { border-color: var(--bronze); color: var(--bronze); }
- 
+
 /* ─── Footer ─── */
 .site-footer {
   text-align: center;
@@ -540,7 +453,7 @@ select { padding-right: 32px; cursor: pointer; }
   color: var(--taupe);
   animation: fadeUp 0.85s 0.3s ease both;
 }
- 
+
 /* ─── Animations ─── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(14px); }
@@ -558,7 +471,7 @@ select { padding-right: 32px; cursor: pointer; }
   0%, 100% { opacity: 1; }
   50%       { opacity: 0; }
 }
- 
+
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--ivory-deep); }
 ::-webkit-scrollbar-thumb { background: var(--taupe-light); border-radius: 3px; }
@@ -566,7 +479,7 @@ select { padding-right: 32px; cursor: pointer; }
 </head>
 <body>
 <div class="page-wrapper">
- 
+
   <header class="site-header">
     <div class="ornament">
       <div class="ornament-line"></div>
@@ -576,11 +489,11 @@ select { padding-right: 32px; cursor: pointer; }
     <h1 class="site-title">Mini Reading Generator</h1>
     <p class="site-subtitle">Elegant, perceptive, quietly magnetic readings</p>
   </header>
- 
+
   <div class="form-card">
- 
+
     <div class="section-label">Reading</div>
- 
+
     <!-- Question -->
     <div class="field">
       <span class="field-label">Question</span>
@@ -592,7 +505,7 @@ select { padding-right: 32px; cursor: pointer; }
         </select>
       </div>
     </div>
- 
+
     <!-- Length + placeholder column -->
     <div class="row-two" style="margin-bottom:26px;">
       <div class="field" style="margin-bottom:0;">
@@ -606,7 +519,7 @@ select { padding-right: 32px; cursor: pointer; }
       </div>
       <div></div>
     </div>
- 
+
     <!-- Age Range -->
     <div class="field">
       <span class="field-label">Age Range</span>
@@ -620,10 +533,10 @@ select { padding-right: 32px; cursor: pointer; }
         <button class="age-btn" data-val="70+" onclick="selectAge(this)">70+</button>
       </div>
     </div>
- 
+
     <div class="divider"></div>
     <div class="section-label">Observation</div>
- 
+
     <!-- Visible Impression -->
     <div class="field">
       <span class="field-label">Visible Impression</span>
@@ -645,7 +558,7 @@ select { padding-right: 32px; cursor: pointer; }
         <input type="text" placeholder="Describe the visible impression…">
       </div>
     </div>
- 
+
     <!-- Style -->
     <div class="field">
       <span class="field-label">Style / Clothing / Colors</span>
@@ -667,7 +580,7 @@ select { padding-right: 32px; cursor: pointer; }
         <input type="text" placeholder="Describe the style…">
       </div>
     </div>
- 
+
     <!-- Facial Expression -->
     <div class="field">
       <span class="field-label">Facial Expression</span>
@@ -689,7 +602,7 @@ select { padding-right: 32px; cursor: pointer; }
         <input type="text" placeholder="Describe the expression…">
       </div>
     </div>
- 
+
     <!-- Body Language -->
     <div class="field">
       <span class="field-label">Body Language</span>
@@ -711,7 +624,7 @@ select { padding-right: 32px; cursor: pointer; }
         <input type="text" placeholder="Describe the body language…">
       </div>
     </div>
- 
+
     <!-- Voice / Presence -->
     <div class="field">
       <span class="field-label">Voice / Pace / Presence</span>
@@ -733,7 +646,7 @@ select { padding-right: 32px; cursor: pointer; }
         <input type="text" placeholder="Describe the voice or presence…">
       </div>
     </div>
- 
+
     <!-- Emotional Impression -->
     <div class="field">
       <span class="field-label">Emotional Impression</span>
@@ -755,10 +668,10 @@ select { padding-right: 32px; cursor: pointer; }
         <input type="text" placeholder="Describe the emotional impression…">
       </div>
     </div>
- 
+
     <div class="divider"></div>
     <div class="section-label">Refinement</div>
- 
+
     <!-- Product + connect -->
     <div class="row-two">
       <div class="field" style="margin-bottom:0;">
@@ -781,15 +694,15 @@ select { padding-right: 32px; cursor: pointer; }
         </div>
       </div>
     </div>
- 
+
     <!-- Notes -->
     <div class="field" style="margin-top:26px;">
       <span class="field-label">Additional Notes <span style="opacity:.45;font-weight:300;letter-spacing:0.06em;text-transform:none;font-size:10px;">— optional</span></span>
       <textarea id="notes" placeholder="Any nuance you want to add manually…" style="min-height:58px;"></textarea>
     </div>
- 
+
     <div class="error-msg" id="error-msg"></div>
- 
+
     <button class="btn-generate" id="generate-btn" onclick="generateReading()">
       <div class="btn-inner">
         <span class="btn-label">Generate Reading</span>
@@ -798,9 +711,9 @@ select { padding-right: 32px; cursor: pointer; }
         </div>
       </div>
     </button>
- 
+
   </div>
- 
+
   <!-- Output -->
   <div class="output-section" id="output-section">
     <div class="output-card">
@@ -812,11 +725,11 @@ select { padding-right: 32px; cursor: pointer; }
       </div>
     </div>
   </div>
- 
+
   <footer class="site-footer">Perceptive &middot; Restrained &middot; Precise</footer>
- 
+
 </div>
- 
+
 <script>
 /* ─── State ───────────────────────────────────────── */
 const chipState = {
@@ -827,9 +740,9 @@ const chipState = {
   voice: [],
   emotion: []
 };
- 
+
 let selectedAge = '';
- 
+
 /* ─── Age ─────────────────────────────────────────── */
 function selectAge(el) {
   const prev = selectedAge;
@@ -841,7 +754,7 @@ function selectAge(el) {
     selectedAge = el.dataset.val;
   }
 }
- 
+
 /* ─── Chips ───────────────────────────────────────── */
 function toggleChip(el) {
   const grid    = el.closest('.chip-grid');
@@ -851,7 +764,7 @@ function toggleChip(el) {
   const isOther = el.classList.contains('chip-other');
   const state   = chipState[key];
   const idx     = state.indexOf(val);
- 
+
   if (idx > -1) {
     state.splice(idx, 1);
     el.classList.remove('selected');
@@ -862,7 +775,7 @@ function toggleChip(el) {
     el.classList.add('selected');
     if (isOther) document.getElementById('other-' + key).classList.add('visible');
   }
- 
+
   // Disable un-selected chips at max
   grid.querySelectorAll('.chip').forEach(c => {
     if (!c.classList.contains('selected')) {
@@ -870,13 +783,13 @@ function toggleChip(el) {
     }
   });
 }
- 
+
 /* ─── Product ─────────────────────────────────────── */
 function toggleProduct() {
   const show = document.getElementById('product-connect').value === 'yes';
   document.getElementById('product-field').classList.toggle('visible', show);
 }
- 
+
 /* ─── Read chips ──────────────────────────────────── */
 function getChipValue(key) {
   const vals = chipState[key].filter(v => v !== 'Other');
@@ -886,7 +799,7 @@ function getChipValue(key) {
   if (chipState[key].includes('Other') && otherText) all.push(otherText);
   return all.join(', ');
 }
- 
+
 /* ─── Build prompt ────────────────────────────────── */
 function buildPrompt() {
   const question   = document.getElementById('question').value;
@@ -894,22 +807,22 @@ function buildPrompt() {
   const useProduct = document.getElementById('product-connect').value === 'yes';
   const product    = document.getElementById('product').value;
   const notes      = document.getElementById('notes').value.trim();
- 
+
   const impression = getChipValue('impression');
   const style      = getChipValue('style');
   const face       = getChipValue('face');
   const body       = getChipValue('body');
   const voice      = getChipValue('voice');
   const emotion    = getChipValue('emotion');
- 
+
   const lengthInstr = lengthPref === 'short'
     ? 'Write one compact reading of exactly 80–120 words. Keep the full arc: insight → emotional meaning → gentle suggestion. Do not break into paragraphs.'
     : 'Write up to 3 short paragraphs. Keep each paragraph lean and visually clean. Do not pad.';
- 
+
   const productInstr = useProduct
     ? `At a natural moment — never forced — draw a subtle, sensory connection between what you observe and the quality of a ${product}. One sentence maximum. It must feel like a natural extension of the reading, not a recommendation.`
     : '';
- 
+
   const parts = [];
   if (selectedAge) parts.push(`Age range: ${selectedAge}`);
   if (impression)  parts.push(`Visible impression: ${impression}`);
@@ -919,36 +832,36 @@ function buildPrompt() {
   if (voice)       parts.push(`Voice / pace / presence: ${voice}`);
   if (emotion)     parts.push(`Emotional impression: ${emotion}`);
   if (notes)       parts.push(`Additional notes: ${notes}`);
- 
+
   return `You are writing a short personalized reading. The question the subject has chosen is: "${question}"
- 
+
 Observations:
 ${parts.length ? parts.join('\n') : '(minimal observations — work from the question alone)'}
- 
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ACCURACY IMPERATIVE
- 
+
 The reading must feel uncannily precise — not merely beautiful. Before writing a single word, identify the following internally:
- 
+
 1. ONE specific tension, contradiction, or form of restraint visible in the observations. This is the spine of the reading. Name it concretely in the first paragraph — not as a feeling, as a fact.
- 
+
 2. Something that is privately true about this person — something people sense but never say aloud. Make this the emotional pivot. If you cannot name it specifically, you have not read carefully enough.
- 
+
 3. Link at least one physical detail (how she dresses, how she holds herself, her expression) directly to an emotional or psychological state. Appearance and inner life are not separate observations — show the connection explicitly.
- 
+
 4. After your first sentence, stay concrete. If you drift into abstraction, return immediately to something specific.
- 
+
 5. Every sentence must be earned by what was observed. If a line could describe anyone, cut it.
- 
+
 6. The strongest lines feel like: "That is exactly what people sense about her and never say out loud." Aim for that.
- 
+
 7. The reading lives in the gap between what she projects and what she holds back. Work that gap from the first line.
- 
+
 8. Precision over beauty. If the choice is between an accurate line and a pretty one, choose accuracy.
- 
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 TONE & CRAFT
- 
+
 - Elegant, observant, restrained — not cold
 - Feminine but precise — softness without blur
 - Slightly haunting in a sophisticated way — not mystical, not therapeutic, not theatrical
@@ -958,16 +871,16 @@ TONE & CRAFT
 - Do not open with "You" or "There is" — find a more precise entry point
 - End with one quiet, concrete suggestion or image — something to lean into, not a prescription
 - Write in natural, elegant English
- 
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 LENGTH:
 ${lengthInstr}
- 
+
 ${productInstr ? `PRODUCT CONNECTION:\n${productInstr}` : ''}
- 
+
 Output only the reading text. No titles, no labels, no preamble.`;
 }
- 
+
 /* ─── Validate ────────────────────────────────────── */
 function hasEnoughData() {
   return (
@@ -978,7 +891,7 @@ function hasEnoughData() {
     document.getElementById('notes').value.trim()
   );
 }
- 
+
 /* ─── Generate ────────────────────────────────────── */
 async function generateReading() {
   const btn       = document.getElementById('generate-btn');
@@ -987,25 +900,25 @@ async function generateReading() {
   const errorEl   = document.getElementById('error-msg');
   const outputSec = document.getElementById('output-section');
   const readingEl = document.getElementById('reading-text');
- 
+
   errorEl.classList.remove('visible');
- 
+
   if (!hasEnoughData()) {
     errorEl.textContent = 'Please select at least one observation — impression, expression, emotion, or add a personal note.';
     errorEl.classList.add('visible');
     return;
   }
- 
+
   btn.disabled = true;
   label.textContent = 'Composing';
   dots.style.display = 'flex';
- 
+
   readingEl.innerHTML = '<span class="cursor-blink"></span>';
   outputSec.classList.add('visible');
   setTimeout(() => outputSec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
- 
+
   const systemPrompt = `You are a refined, perceptive reader writing for an elegant, discerning audience. Your prose carries the quiet precision of someone who has spent years reading the gap between what people present and what they carry. Your writing is spare, intelligent, and occasionally stops the reader cold — not because it is dramatic, but because it named something true they had never articulated. You never flatter. You observe. You do not perform insight; you deliver it.`;
- 
+
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -1021,17 +934,17 @@ async function generateReading() {
         messages: [{ role: 'user', content: buildPrompt() }]
       })
     });
- 
+
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
       throw new Error(err?.error?.message || `API error ${response.status}`);
     }
- 
+
     const reader  = response.body.getReader();
     const decoder = new TextDecoder();
     let fullText  = '';
     readingEl.innerHTML = '';
- 
+
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -1049,9 +962,9 @@ async function generateReading() {
         } catch {}
       }
     }
- 
+
     renderReading(readingEl, fullText, false);
- 
+
   } catch (err) {
     readingEl.innerHTML = '';
     outputSec.classList.remove('visible');
@@ -1063,7 +976,7 @@ async function generateReading() {
     dots.style.display = 'none';
   }
 }
- 
+
 /* ─── Render ──────────────────────────────────────── */
 function renderReading(el, text, streaming) {
   const paras = text.trim().split(/\n\n+/);
@@ -1078,7 +991,7 @@ function renderReading(el, text, streaming) {
   }
   el.innerHTML = html;
 }
- 
+
 /* ─── Copy ────────────────────────────────────────── */
 function copyReading() {
   const text = document.getElementById('reading-text').innerText.trim();
@@ -1097,39 +1010,38 @@ function copyReading() {
     window.getSelection().removeAllRanges();
   });
 }
- 
+
 /* ─── Clear ───────────────────────────────────────── */
 function clearAll() {
   // Chips
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected', 'disabled'));
   Object.keys(chipState).forEach(k => chipState[k] = []);
- 
+
   // Other inputs
   document.querySelectorAll('[id^="other-"]').forEach(el => {
     el.classList.remove('visible');
     const inp = el.querySelector('input, textarea');
     if (inp) inp.value = '';
   });
- 
+
   // Age
   document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('selected'));
   selectedAge = '';
- 
+
   // Selects + notes
   document.getElementById('question').selectedIndex = 0;
   document.getElementById('length').selectedIndex = 1;
   document.getElementById('product-connect').selectedIndex = 0;
   document.getElementById('product-field').classList.remove('visible');
   document.getElementById('notes').value = '';
- 
+
   // Output
   document.getElementById('output-section').classList.remove('visible');
   document.getElementById('reading-text').innerHTML = '';
   document.getElementById('error-msg').classList.remove('visible');
- 
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
 </body>
 </html>
- 
