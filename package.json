@@ -1,0 +1,20 @@
+{
+  "name": "mini-reading-generator",
+  "version": "1.0.0",
+  "description": "Elegant personalized reading generator — Express + OpenAI backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev":   "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "openai": "^4.47.1"
+  },
+  "optionalDependencies": {
+    "dotenv": "^16.4.5"
+  }
+}
