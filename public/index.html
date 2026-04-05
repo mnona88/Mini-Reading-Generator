@@ -6,12 +6,11 @@
   <title>The Color You Need Now</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #F7F3EC;
       --text: #272220;
-      --accent: #8B6B3D;
       --chip: #EFE7DA;
       --line: rgba(39, 34, 32, 0.12);
       --white: #fffdf9;
@@ -32,13 +31,13 @@
 
     .wrap {
       width: 100%;
-      max-width: 820px;
+      max-width: 760px;
       margin: 0 auto;
       padding: 32px 20px 56px;
     }
 
     .card {
-      background: rgba(255,255,255,0.38);
+      background: rgba(255, 255, 255, 0.38);
       border: 1px solid var(--line);
       border-radius: 28px;
       padding: 28px 20px;
@@ -49,8 +48,8 @@
     h1 {
       margin: 0 0 8px;
       font-family: "Cormorant Garamond", serif;
-      font-size: clamp(2.1rem, 6vw, 3.6rem);
-      line-height: 0.96;
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      line-height: 0.95;
       font-weight: 500;
       letter-spacing: 0.01em;
     }
@@ -72,6 +71,18 @@
       font-size: 0.92rem;
       font-weight: 500;
       letter-spacing: 0.02em;
+    }
+
+    .input {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--white);
+      color: var(--text);
+      border-radius: 18px;
+      padding: 14px 16px;
+      font: inherit;
+      font-size: 0.98rem;
+      outline: none;
     }
 
     .chips {
@@ -100,18 +111,6 @@
     .chip.active {
       background: var(--text);
       color: var(--bg);
-    }
-
-    .select {
-      width: 100%;
-      border: 1px solid var(--line);
-      background: var(--white);
-      color: var(--text);
-      border-radius: 18px;
-      padding: 14px 16px;
-      font: inherit;
-      font-size: 0.98rem;
-      outline: none;
     }
 
     .actions {
@@ -145,34 +144,35 @@
     }
 
     .output {
-      margin-top: 28px;
-      padding-top: 22px;
+      margin-top: 30px;
+      padding-top: 24px;
       border-top: 1px solid var(--line);
     }
 
-    .output-label {
-      font-size: 0.8rem;
-      letter-spacing: 0.08em;
+    .result-color {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(2.2rem, 7vw, 4.3rem);
+      line-height: 1;
+      margin: 0 0 10px;
+    }
+
+    .result-theme {
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: rgba(39, 34, 32, 0.56);
+      color: rgba(39, 34, 32, 0.58);
       margin-bottom: 14px;
     }
 
-    .reading {
-      min-height: 110px;
-      white-space: pre-line;
-      font-family: "Cormorant Garamond", serif;
-      font-style: italic;
-      font-size: clamp(1.5rem, 4.4vw, 2.25rem);
-      line-height: 1.4;
-      letter-spacing: 0.01em;
+    .result-message {
+      font-size: 1.18rem;
+      line-height: 1.7;
+      max-width: 32ch;
     }
 
     .muted {
       color: rgba(39, 34, 32, 0.56);
-      font-style: normal;
       font-size: 1rem;
-      font-family: "Jost", sans-serif;
     }
 
     @media (max-width: 640px) {
@@ -197,108 +197,69 @@
   <div class="wrap">
     <div class="card">
       <h1>The Color You Need Now</h1>
-      <p class="sub">A precise color reading based on what your presence quietly reveals.</p>
+      <p class="sub">A minimal reading inspired by Four Pillars thinking.</p>
 
       <div class="section">
-        <label class="label" for="ageRange">Age Range</label>
-        <select id="ageRange" class="select">
-          <option value="">Select</option>
-          <option>10–20</option>
-          <option>20–30</option>
-          <option>30–40</option>
-          <option>40–50</option>
-          <option>50–60</option>
-          <option>60–70</option>
-          <option>70+</option>
-        </select>
+        <label class="label" for="birthDate">Birth Date</label>
+        <input id="birthDate" class="input" type="date" />
       </div>
 
       <div class="section">
-        <div class="label">Visible Impression (choose up to 2)</div>
-        <div id="visibleImpression" class="chips"></div>
-      </div>
-
-      <div class="section">
-        <div class="label">Facial Expression (choose up to 2)</div>
-        <div id="facialExpression" class="chips"></div>
-      </div>
-
-      <div class="section">
-        <div class="label">Body Language (choose up to 2)</div>
-        <div id="bodyLanguage" class="chips"></div>
-      </div>
-
-      <div class="section">
-        <div class="label">Emotional Impression (choose up to 2)</div>
-        <div id="emotionalImpression" class="chips"></div>
+        <div class="label">Choose the one color you feel drawn to now</div>
+        <div id="selectedColor" class="chips"></div>
       </div>
 
       <div class="actions">
-        <button id="generateBtn" class="btn primary">Generate Reading</button>
-        <button id="copyBtn" class="btn">Copy Reading</button>
+        <button id="generateBtn" class="btn primary">See My Color</button>
+        <button id="copyBtn" class="btn">Copy</button>
         <button id="clearBtn" class="btn">Clear</button>
       </div>
 
-      <div class="output">
-        <div class="output-label">Result</div>
-        <div id="reading" class="reading">
-          <span class="muted">Your color and message will appear here.</span>
+      <div class="output" id="output">
+        <div id="reading">
+          <div class="muted">Your result will appear here.</div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    const options = {
-      visibleImpression: [
-        "Polished", "Warm", "Reserved", "Confident", "Elegant",
-        "Mysterious", "Soft", "Powerful", "Approachable", "Intense"
-      ],
-      facialExpression: [
-        "Calm", "Guarded", "Gentle", "Serious", "Kind",
-        "Unreadable", "Observant", "Composed", "Tired but holding it together", "Slightly distant"
-      ],
-      bodyLanguage: [
-        "Relaxed", "Controlled", "Upright", "Graceful", "Guarded",
-        "Self-possessed", "Slightly tense", "Open", "Deliberate", "Quietly commanding"
-      ],
-      emotionalImpression: [
-        "Holding back", "Longing to be seen", "Carrying a quiet sadness", "Deeply self-controlled",
-        "Emotionally tired", "More sensitive than they appear", "Protecting their energy",
-        "Ready for a shift", "Craving softness", "Used to being strong"
-      ]
-    };
+    const colors = [
+      "Midori",
+      "Soft Blue",
+      "Burgundy",
+      "Burnt Orange",
+      "Rakuda",
+      "Ivory",
+      "Grey/Silver",
+      "Gold",
+      "Sumi Black",
+      "Dark Blue",
+      "Sakura"
+    ];
 
     const state = {
-      visibleImpression: [],
-      facialExpression: [],
-      bodyLanguage: [],
-      emotionalImpression: []
+      selectedColor: ""
     };
 
-    function renderChips(containerId, items, key, max = 2) {
-      const container = document.getElementById(containerId);
+    const readingEl = document.getElementById("reading");
+    const generateBtn = document.getElementById("generateBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const clearBtn = document.getElementById("clearBtn");
+
+    function renderColorChips() {
+      const container = document.getElementById("selectedColor");
       container.innerHTML = "";
 
-      items.forEach(item => {
+      colors.forEach((color) => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "chip";
-        btn.textContent = item;
+        btn.textContent = color;
 
         btn.addEventListener("click", () => {
-          const current = state[key];
-          const index = current.indexOf(item);
-
-          if (index >= 0) {
-            current.splice(index, 1);
-            btn.classList.remove("active");
-            return;
-          }
-
-          if (current.length >= max) return;
-
-          current.push(item);
+          state.selectedColor = color;
+          container.querySelectorAll(".chip").forEach((chip) => chip.classList.remove("active"));
           btn.classList.add("active");
         });
 
@@ -306,33 +267,59 @@
       });
     }
 
-    renderChips("visibleImpression", options.visibleImpression, "visibleImpression");
-    renderChips("facialExpression", options.facialExpression, "facialExpression");
-    renderChips("bodyLanguage", options.bodyLanguage, "bodyLanguage");
-    renderChips("emotionalImpression", options.emotionalImpression, "emotionalImpression");
-
-    const readingEl = document.getElementById("reading");
-    const generateBtn = document.getElementById("generateBtn");
-    const copyBtn = document.getElementById("copyBtn");
-    const clearBtn = document.getElementById("clearBtn");
-
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
-    async function typeWriter(text, speed = 28) {
-      readingEl.textContent = "";
-      const words = text.split(" ");
-      for (let i = 0; i < words.length; i++) {
-        readingEl.textContent += (i === 0 ? "" : " ") + words[i];
-        await sleep(speed);
+    function parseResult(text) {
+      const lines = text.split("\n");
+      const result = { color: "", theme: "", message: "" };
+
+      for (const line of lines) {
+        if (line.startsWith("Color:")) {
+          result.color = line.replace("Color:", "").trim();
+        } else if (line.startsWith("Theme:")) {
+          result.theme = line.replace("Theme:", "").trim();
+        } else if (line.startsWith("Message:")) {
+          result.message = line.replace("Message:", "").trim();
+        }
       }
+
+      return result;
     }
+
+    function renderResult(text) {
+      const { color, theme, message } = parseResult(text);
+
+      readingEl.innerHTML = `
+        <div class="result-color">${escapeHtml(color || "Ivory")}</div>
+        <div class="result-theme">${escapeHtml(theme || "Return to balance")}</div>
+        <div class="result-message">${escapeHtml(message || "Come back to what steadies you.")}</div>
+      `;
+    }
+
+    renderColorChips();
 
     generateBtn.addEventListener("click", async () => {
-      const ageRange = document.getElementById("ageRange").value;
+      const birthDate = document.getElementById("birthDate").value;
+      const selectedColor = state.selectedColor;
 
-      readingEl.innerHTML = '<span class="muted">Reading...</span>';
+      if (!birthDate) {
+        readingEl.innerHTML = `<div class="muted">Please enter your birth date.</div>`;
+        return;
+      }
+
+      if (!selectedColor) {
+        readingEl.innerHTML = `<div class="muted">Please choose one color.</div>`;
+        return;
+      }
+
+      readingEl.innerHTML = `<div class="muted">Reading...</div>`;
 
       try {
         const response = await fetch("/api/generate-reading", {
@@ -340,40 +327,36 @@
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({
-            ageRange,
-            visibleImpression: state.visibleImpression,
-            facialExpression: state.facialExpression,
-            bodyLanguage: state.bodyLanguage,
-            emotionalImpression: state.emotionalImpression
-          })
+          body: JSON.stringify({ birthDate, selectedColor })
         });
 
         const data = await response.json();
-        await typeWriter(data.text || "Color: Ivory\nMessage: You are not asking for more strength; you are asking for less to hold.");
+        renderResult(data.text || "Color: Ivory\nTheme: Return to balance\nMessage: Come back to what steadies you.");
       } catch (error) {
-        readingEl.textContent = "Color: Grey/Silver\nMessage: You have been holding too much without letting anyone see the weight.";
+        renderResult("Color: Ivory\nTheme: Return to balance\nMessage: Come back to what steadies you.");
       }
     });
 
     copyBtn.addEventListener("click", async () => {
-      const text = readingEl.textContent.trim();
-      if (!text || text === "Your color and message will appear here.") return;
+      const text = readingEl.innerText.trim();
+      if (!text || text === "Your result will appear here.") return;
 
       try {
         await navigator.clipboard.writeText(text);
         copyBtn.textContent = "Copied";
         setTimeout(() => {
-          copyBtn.textContent = "Copy Reading";
+          copyBtn.textContent = "Copy";
         }, 1200);
-      } catch (_) {}
+      } catch (error) {
+        console.error("Copy failed:", error);
+      }
     });
 
     clearBtn.addEventListener("click", () => {
-      document.getElementById("ageRange").value = "";
-      Object.keys(state).forEach(key => state[key] = []);
-      document.querySelectorAll(".chip").forEach(chip => chip.classList.remove("active"));
-      readingEl.innerHTML = '<span class="muted">Your color and message will appear here.</span>';
+      document.getElementById("birthDate").value = "";
+      state.selectedColor = "";
+      document.querySelectorAll(".chip").forEach((chip) => chip.classList.remove("active"));
+      readingEl.innerHTML = `<div class="muted">Your result will appear here.</div>`;
     });
   </script>
 </body>
