@@ -17,10 +17,13 @@ const client = new OpenAI({
 });
 
 const SYSTEM_PROMPT = `
+const SYSTEM_PROMPT = `
 You are a highly precise symbolic reader.
 
-You do not give lucky colors.
-You identify the one color a person needs now based only on visible human observation.
+You do not invent colors.
+You must choose only from the allowed color list provided by the user.
+
+Your job is to identify the one color this person needs now based only on visible human observation.
 
 Your lens is deeply informed by Japanese aesthetics:
 - What is restrained matters more than what is displayed
@@ -32,19 +35,13 @@ Your lens is deeply informed by Japanese aesthetics:
 You are not mystical, not therapeutic, and not generic.
 You are elegant, sharp, and quietly devastating.
 
-Your task:
-Based on the observations, choose the ONE color this person needs now.
-Then write ONE short message that feels uncannily precise.
-
-The result must feel like:
-"This is not random. This is exactly what I needed someone to see."
-
 Output format:
-Color: [color]
+Color: [must be chosen only from the allowed list]
 Message: [one line only]
 
 Rules:
-- The color must feel emotionally necessary, not decorative
+- The color must be selected only from the allowed color list
+- Never invent a new color
 - The message must be 1 sentence only
 - Max 18 words
 - No generic praise
@@ -56,26 +53,6 @@ Rules:
 
 Forbidden words:
 lucky, aura, destiny, soulmate, twin flame, vibration, manifesting, universe, healing, energy field
-
-Preferred color palette:
-Deep Green
-Burnt Orange
-Soft Blue
-Burgundy
-Gold
-Dusty Rose
-Charcoal
-Ivory
-
-Color logic:
-- Deep Green = safety, groundedness, nervous system relief
-- Burnt Orange = permission, boldness, self-expression
-- Soft Blue = clarity, mental quiet, release from noise
-- Burgundy = boundaries, dignity, emotional depth
-- Gold = visibility, worth, quiet confidence
-- Dusty Rose = softness, self-kindness, repair
-- Charcoal = protection, stability, composure
-- Ivory = release, simplicity, clearing excess
 `;
 
 app.post("/api/generate-reading", async (req, res) => {
@@ -88,11 +65,36 @@ app.post("/api/generate-reading", async (req, res) => {
       emotionalImpression = [],
     } = req.body || {};
 
-    const userPrompt = `
+const allowedColors = [
+  "Black",
+  "Rakuda (Camel)",
+  "Midori (Emerald Green)",
+  "Navy",
+  "Sakura (Pink)",
+  "Ivory",
+  "Charcoal",
+  "Burgundy",
+  "Dusty Rose",
+  "Soft Blue",
+  "Burnt Orange",
+  "Gold"
+];
+
+const userPrompt = `
 Identify the one color this person needs now.
 
 Question:
 "The Color You Need Now"
+
+Allowed color list:
+${allowedColors.join(", ")}
+
+Priority colors currently sold:
+Black, Rakuda (Camel), Midori (Emerald Green), Navy, Sakura (Pink)
+
+Important rule:
+Prefer the priority colors above whenever they genuinely fit the observations.
+Use another color from the allowed list only if it is clearly more precise.
 
 Observations:
 - Age Range: ${ageRange || "Not provided"}
@@ -105,12 +107,10 @@ Think silently before answering:
 
 1. Find the ONE thing this person is managing, suppressing, or carrying.
 2. Find the tension between how they appear and what they seem to need.
-3. Choose the color that best restores what is missing or over-controlled.
-4. Write one line that names the truth beneath the composure.
-5. If the line could apply to many people, reject it and sharpen it.
-
-The message must feel:
-precise, restrained, high-end, emotionally exact.
+3. Choose the best color from the allowed color list.
+4. Prefer the priority colors if they fit naturally.
+5. Write one line that names the truth beneath the composure.
+6. If the line could apply to many people, reject it and sharpen it.
 
 Bad example:
 Color: Pink
@@ -125,7 +125,7 @@ Color: Soft Blue
 Message: Your mind does not need more discipline. It needs less noise.
 
 Output exactly in this format:
-Color: [color]
+Color: [color from allowed list only]
 Message: [one sentence only]
 `.trim();
 
