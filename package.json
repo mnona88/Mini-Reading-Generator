@@ -1,10 +1,16 @@
 {
   "name": "mini-reading-generator",
   "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
   "engines": {
     "node": ">=18.0.0"
   },
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
+    "express": "^4.21.2",
     "openai": "^4.47.1"
   }
 }
