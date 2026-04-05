@@ -70,7 +70,7 @@ app.post("/api/generate-reading", async (req, res) => {
       "Black",
       "Rakuda (Camel)",
       "Midori (Emerald Green)",
-      "Navy",
+      "Dark Blue",
       "Sakura (Pink)",
       "Ivory",
       "Grey/Silver",
