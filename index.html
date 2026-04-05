@@ -1,1074 +1,957 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mini Reading Generator</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Reading Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
-  --ivory:        #F7F3EC;
-  --ivory-deep:   #EDE8DF;
-  --ivory-chip:   #F0EBE2;
-  --charcoal:     #272220;
-  --charcoal-mid: #3E3A37;
-  --charcoal-soft:#5A5450;
-  --bronze:       #8B6B3D;
-  --bronze-light: #C4A46B;
-  --bronze-pale:  #E4D3B8;
-  --taupe:        #B5A89A;
-  --taupe-light:  #D4C9BC;
-  --white:        #FDFAF5;
-  --border:       rgba(139,107,61,0.16);
-  --border-soft:  rgba(139,107,61,0.10);
-  --shadow:       rgba(42,36,32,0.055);
-  --shadow-deep:  rgba(42,36,32,0.10);
-}
+    :root {
+      --ivory:        #F7F3EC;
+      --ivory-deep:   #EDE8DF;
+      --ivory-chip:   #F0EBE2;
+      --charcoal:     #272220;
+      --charcoal-mid: #3E3A37;
+      --charcoal-soft:#5A5450;
+      --bronze:       #8B6B3D;
+      --bronze-light: #C4A46B;
+      --taupe:        #B5A89A;
+      --taupe-light:  #D4C9BC;
+      --white:        #FDFAF5;
+      --border:       rgba(139,107,61,0.16);
+      --border-soft:  rgba(139,107,61,0.10);
+      --shadow:       rgba(42,36,32,0.055);
+      --shadow-deep:  rgba(42,36,32,0.10);
+      --success:      #6e7c5f;
+      --error-bg:     rgba(160,70,50,0.06);
+      --error-border: rgba(160,70,50,0.18);
+      --error-text:   #7A3020;
+    }
 
-html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; }
 
-body {
-  background-color: var(--ivory);
-  color: var(--charcoal);
-  font-family: 'Jost', sans-serif;
-  font-weight: 300;
-  font-size: 14px;
-  line-height: 1.65;
-  min-height: 100vh;
-  overflow-x: hidden;
-  position: relative;
-}
+    body {
+      background-color: var(--ivory);
+      color: var(--charcoal);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: 14px;
+      line-height: 1.65;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
 
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
-}
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
 
-.page-wrapper {
-  max-width: 660px;
-  margin: 0 auto;
-  padding: 60px 26px 96px;
-  position: relative;
-  z-index: 1;
-}
+    .page-wrapper {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 60px 26px 96px;
+      position: relative;
+      z-index: 1;
+    }
 
-/* ─── Header ─── */
-.site-header {
-  text-align: center;
-  margin-bottom: 52px;
-  animation: fadeUp 0.85s ease both;
-}
+    .site-header {
+      text-align: center;
+      margin-bottom: 52px;
+      animation: fadeUp 0.85s ease both;
+    }
 
-.ornament {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-bottom: 22px;
-}
-.ornament-line {
-  width: 48px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--bronze-light));
-  opacity: 0.5;
-}
-.ornament-line.r { background: linear-gradient(90deg, var(--bronze-light), transparent); }
-.ornament-mark {
-  width: 5px;
-  height: 5px;
-  border: 1px solid var(--bronze-light);
-  transform: rotate(45deg);
-  opacity: 0.5;
-}
+    .ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .ornament-line {
+      width: 48px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--bronze-light));
+      opacity: 0.5;
+    }
+    .ornament-line.r { background: linear-gradient(90deg, var(--bronze-light), transparent); }
+    .ornament-mark {
+      width: 5px;
+      height: 5px;
+      border: 1px solid var(--bronze-light);
+      transform: rotate(45deg);
+      opacity: 0.5;
+    }
 
-.site-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-weight: 300;
-  font-size: clamp(30px, 6.5vw, 44px);
-  letter-spacing: 0.05em;
-  color: var(--charcoal);
-  line-height: 1.08;
-  margin-bottom: 12px;
-}
+    .site-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(30px, 6.5vw, 44px);
+      letter-spacing: 0.05em;
+      color: var(--charcoal);
+      line-height: 1.08;
+      margin-bottom: 12px;
+    }
 
-.site-subtitle {
-  font-size: 10.5px;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--taupe);
-  font-weight: 400;
-}
+    .site-subtitle {
+      font-size: 10.5px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--taupe);
+      font-weight: 400;
+    }
 
-/* ─── Card ─── */
-.form-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 42px 38px;
-  margin-bottom: 28px;
-  box-shadow:
-    0 2px 0 rgba(255,255,255,0.9) inset,
-    0 6px 40px var(--shadow),
-    0 1px 3px var(--shadow-deep);
-  animation: fadeUp 0.85s 0.12s ease both;
-}
+    .form-card,
+    .output-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 42px 38px;
+      box-shadow:
+        0 2px 0 rgba(255,255,255,0.9) inset,
+        0 6px 40px var(--shadow),
+        0 1px 3px var(--shadow-deep);
+    }
 
-@media (max-width: 520px) {
-  .form-card { padding: 28px 20px; }
-  .page-wrapper { padding: 40px 16px 80px; }
-}
+    .form-card {
+      margin-bottom: 28px;
+      animation: fadeUp 0.85s 0.12s ease both;
+    }
 
-/* ─── Section label ─── */
-.section-label {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 9.5px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--bronze);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 30px;
-}
-.section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, var(--border), transparent);
-}
+    @media (max-width: 520px) {
+      .form-card,
+      .output-card { padding: 28px 20px; }
+      .page-wrapper { padding: 40px 16px 80px; }
+    }
 
-/* ─── Field ─── */
-.field { margin-bottom: 26px; }
+    .section-label,
+    .output-eyebrow {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 9.5px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--bronze);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+    .section-label::after,
+    .output-eyebrow::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
 
-.field-label {
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--charcoal-soft);
-  font-weight: 400;
-  margin-bottom: 10px;
-  display: block;
-}
+    .field { margin-bottom: 26px; }
 
-.field-hint {
-  font-size: 10px;
-  color: var(--taupe);
-  letter-spacing: 0.06em;
-  margin-bottom: 11px;
-  display: block;
-  font-style: italic;
-}
+    .field-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--charcoal-soft);
+      font-weight: 400;
+      margin-bottom: 10px;
+      display: block;
+    }
 
-/* ─── Inputs ─── */
-input[type="text"], textarea, select {
-  width: 100%;
-  background: var(--ivory-chip);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 10px 13px;
-  font-family: 'Jost', sans-serif;
-  font-size: 13px;
-  font-weight: 300;
-  color: var(--charcoal);
-  outline: none;
-  transition: border-color 0.22s, box-shadow 0.22s, background 0.22s;
-  -webkit-appearance: none;
-  appearance: none;
-}
-input[type="text"]:focus, textarea:focus, select:focus {
-  border-color: var(--bronze-light);
-  box-shadow: 0 0 0 3px rgba(196,164,107,0.10);
-  background: var(--white);
-}
-textarea { resize: vertical; min-height: 66px; line-height: 1.6; }
+    .field-hint {
+      font-size: 10px;
+      color: var(--taupe);
+      letter-spacing: 0.06em;
+      margin-bottom: 11px;
+      display: block;
+      font-style: italic;
+    }
 
-.select-wrap { position: relative; }
-.select-wrap::after {
-  content: '›';
-  position: absolute;
-  right: 13px;
-  top: 50%;
-  transform: translateY(-50%) rotate(90deg);
-  color: var(--bronze);
-  pointer-events: none;
-  font-size: 15px;
-}
-select { padding-right: 32px; cursor: pointer; }
-::placeholder { color: var(--taupe); opacity: 0.75; }
+    input[type="text"] {
+      width: 100%;
+      background: var(--ivory-chip);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 10px 13px;
+      font-family: 'Jost', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--charcoal);
+      outline: none;
+      transition: border-color 0.22s, box-shadow 0.22s, background 0.22s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
 
-/* ─── Age buttons ─── */
-.age-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
+    input[type="text"]:focus {
+      border-color: var(--bronze-light);
+      box-shadow: 0 0 0 3px rgba(196,164,107,0.10);
+      background: var(--white);
+    }
 
-.age-btn {
-  padding: 7px 17px;
-  border-radius: 50px;
-  border: 1px solid var(--border);
-  background: var(--ivory-chip);
-  color: var(--charcoal-soft);
-  font-family: 'Jost', sans-serif;
-  font-size: 12px;
-  font-weight: 300;
-  letter-spacing: 0.07em;
-  cursor: pointer;
-  transition: background 0.16s, border-color 0.16s, color 0.16s, transform 0.1s;
-  white-space: nowrap;
-  user-select: none;
-  line-height: 1;
-}
-.age-btn:hover {
-  border-color: var(--bronze-light);
-  color: var(--charcoal-mid);
-  background: rgba(196,164,107,0.07);
-}
-.age-btn.selected {
-  background: var(--charcoal);
-  border-color: var(--charcoal);
-  color: var(--ivory);
-}
-.age-btn:active { transform: scale(0.97); }
+    ::placeholder { color: var(--taupe); opacity: 0.75; }
 
-/* ─── Chips ─── */
-.chip-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
+    .age-grid,
+    .chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
 
-.chip {
-  padding: 7px 14px;
-  border-radius: 50px;
-  border: 1px solid var(--border);
-  background: var(--ivory-chip);
-  color: var(--charcoal-soft);
-  font-family: 'Jost', sans-serif;
-  font-size: 11.5px;
-  font-weight: 300;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: background 0.16s, border-color 0.16s, color 0.16s, opacity 0.16s, transform 0.1s;
-  white-space: nowrap;
-  user-select: none;
-  line-height: 1.4;
-}
-.chip:hover:not(.disabled) {
-  border-color: var(--bronze-light);
-  color: var(--charcoal-mid);
-  background: rgba(196,164,107,0.07);
-}
-.chip:active:not(.disabled) { transform: scale(0.97); }
-.chip.selected {
-  background: var(--charcoal);
-  border-color: var(--charcoal);
-  color: var(--ivory);
-  font-weight: 400;
-}
-.chip.chip-other.selected {
-  background: var(--bronze);
-  border-color: var(--bronze);
-  color: var(--ivory);
-}
-.chip.disabled {
-  opacity: 0.32;
-  cursor: default;
-  pointer-events: none;
-}
+    .age-btn,
+    .chip {
+      border-radius: 50px;
+      border: 1px solid var(--border);
+      background: var(--ivory-chip);
+      color: var(--charcoal-soft);
+      font-family: 'Jost', sans-serif;
+      cursor: pointer;
+      transition: background 0.16s, border-color 0.16s, color 0.16s, opacity 0.16s, transform 0.1s;
+      user-select: none;
+    }
 
-.other-reveal {
-  display: none;
-  margin-top: 10px;
-  animation: fadeIn 0.22s ease both;
-}
-.other-reveal.visible { display: block; }
+    .age-btn {
+      padding: 7px 17px;
+      font-size: 12px;
+      font-weight: 300;
+      letter-spacing: 0.07em;
+      line-height: 1;
+      white-space: nowrap;
+    }
 
-/* ─── Two-col ─── */
-.row-two {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-@media (max-width: 460px) { .row-two { grid-template-columns: 1fr; } }
+    .chip {
+      padding: 7px 14px;
+      font-size: 11.5px;
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
 
-/* ─── Divider ─── */
-.divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border), transparent);
-  margin: 32px 0;
-}
+    .age-btn:hover,
+    .chip:hover:not(.disabled) {
+      border-color: var(--bronze-light);
+      color: var(--charcoal-mid);
+      background: rgba(196,164,107,0.07);
+    }
 
-/* ─── Generate button ─── */
-.btn-generate {
-  width: 100%;
-  background: var(--charcoal);
-  color: var(--ivory);
-  border: none;
-  border-radius: 3px;
-  padding: 15px 24px;
-  font-family: 'Jost', sans-serif;
-  font-size: 10.5px;
-  font-weight: 400;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.22s, transform 0.12s;
-}
-.btn-generate:hover { background: var(--bronze); }
-.btn-generate:active { transform: scale(0.993); }
-.btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .age-btn:active,
+    .chip:active:not(.disabled) { transform: scale(0.97); }
 
-.btn-inner { display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .age-btn.selected,
+    .chip.selected {
+      background: var(--charcoal);
+      border-color: var(--charcoal);
+      color: var(--ivory);
+      font-weight: 400;
+    }
 
-.loading-dots { display: none; align-items: center; gap: 4px; }
-.loading-dots span {
-  width: 3.5px; height: 3.5px;
-  border-radius: 50%;
-  background: var(--ivory);
-  animation: dot-pulse 1.2s ease-in-out infinite;
-}
-.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    .chip.chip-other.selected {
+      background: var(--bronze);
+      border-color: var(--bronze);
+    }
 
-/* ─── Error ─── */
-.error-msg {
-  display: none;
-  background: rgba(160,70,50,0.06);
-  border: 1px solid rgba(160,70,50,0.18);
-  border-radius: 3px;
-  padding: 12px 16px;
-  font-size: 12.5px;
-  color: #7A3020;
-  margin-bottom: 16px;
-  line-height: 1.55;
-}
-.error-msg.visible { display: block; }
+    .chip.disabled {
+      opacity: 0.32;
+      cursor: default;
+      pointer-events: none;
+    }
 
-/* ─── Output ─── */
-.output-section { display: none; animation: fadeUp 0.65s ease both; }
-.output-section.visible { display: block; }
+    .other-reveal {
+      display: none;
+      margin-top: 10px;
+      animation: fadeIn 0.22s ease both;
+    }
+    .other-reveal.visible { display: block; }
 
-.output-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 42px 38px;
-  box-shadow:
-    0 2px 0 rgba(255,255,255,0.9) inset,
-    0 6px 40px var(--shadow),
-    0 1px 3px var(--shadow-deep);
-}
-@media (max-width: 520px) { .output-card { padding: 28px 20px; } }
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 32px 0;
+    }
 
-.output-eyebrow {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 9.5px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--bronze);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 26px;
-}
-.output-eyebrow::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, var(--border), transparent);
-}
+    .error-msg {
+      display: none;
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      border-radius: 3px;
+      padding: 12px 16px;
+      font-size: 12.5px;
+      color: var(--error-text);
+      margin-bottom: 16px;
+      line-height: 1.55;
+    }
+    .error-msg.visible { display: block; }
 
-.reading-text {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 20px;
-  font-weight: 300;
-  font-style: italic;
-  line-height: 1.88;
-  color: var(--charcoal);
-  letter-spacing: 0.012em;
-  min-height: 64px;
-}
-.reading-text p { margin-bottom: 1.35em; }
-.reading-text p:last-child { margin-bottom: 0; }
+    .btn-generate {
+      width: 100%;
+      background: var(--charcoal);
+      color: var(--ivory);
+      border: none;
+      border-radius: 3px;
+      padding: 15px 24px;
+      font-family: 'Jost', sans-serif;
+      font-size: 10.5px;
+      font-weight: 400;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.22s, transform 0.12s;
+    }
 
-.cursor-blink {
-  display: inline-block;
-  width: 1px;
-  height: 1em;
-  background: var(--bronze);
-  vertical-align: text-bottom;
-  margin-left: 2px;
-  animation: blink 0.8s ease-in-out infinite;
-}
+    .btn-generate:hover { background: var(--bronze); }
+    .btn-generate:active { transform: scale(0.993); }
 
-.output-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 30px;
-  padding-top: 22px;
-  border-top: 1px solid var(--border-soft);
-}
-.btn-action {
-  flex: 1;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 10px 14px;
-  font-family: 'Jost', sans-serif;
-  font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--charcoal-soft);
-  cursor: pointer;
-  transition: all 0.18s;
-}
-.btn-action:hover {
-  border-color: var(--bronze-light);
-  color: var(--bronze);
-  background: rgba(196,164,107,0.05);
-}
-.btn-action.copied { border-color: var(--bronze); color: var(--bronze); }
+    .output-section { display: none; animation: fadeUp 0.65s ease both; }
+    .output-section.visible { display: block; }
 
-/* ─── Footer ─── */
-.site-footer {
-  text-align: center;
-  margin-top: 48px;
-  font-size: 10.5px;
-  letter-spacing: 0.18em;
-  color: var(--taupe);
-  animation: fadeUp 0.85s 0.3s ease both;
-}
+    .result-grid {
+      display: grid;
+      gap: 22px;
+    }
 
-/* ─── Animations ─── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-@keyframes dot-pulse {
-  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-  40%           { opacity: 1;   transform: scale(1); }
-}
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
+    .result-block {
+      padding: 18px 0 0;
+      border-top: 1px solid var(--border-soft);
+    }
 
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: var(--ivory-deep); }
-::-webkit-scrollbar-thumb { background: var(--taupe-light); border-radius: 3px; }
-</style>
+    .result-block:first-of-type {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .result-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--charcoal-soft);
+      font-weight: 400;
+      margin-bottom: 8px;
+    }
+
+    .result-value-main {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 29px;
+      line-height: 1.15;
+      color: var(--charcoal);
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+
+    .result-value-energy {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      line-height: 1.2;
+      color: var(--charcoal);
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+
+    .result-message {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 21px;
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.8;
+      color: var(--charcoal);
+      letter-spacing: 0.012em;
+      min-height: 48px;
+    }
+
+    .placeholder {
+      color: var(--taupe);
+      font-style: italic;
+      font-size: 16px;
+      letter-spacing: 0.03em;
+    }
+
+    .output-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .btn-action {
+      flex: 1;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 10px 14px;
+      font-family: 'Jost', sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--charcoal-soft);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .btn-action:hover {
+      border-color: var(--bronze-light);
+      color: var(--bronze);
+      background: rgba(196,164,107,0.05);
+    }
+
+    .btn-action.copied {
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .site-footer {
+      text-align: center;
+      margin-top: 48px;
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      color: var(--taupe);
+      animation: fadeUp 0.85s 0.3s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--ivory-deep); }
+    ::-webkit-scrollbar-thumb { background: var(--taupe-light); border-radius: 3px; }
+  </style>
 </head>
 <body>
-<div class="page-wrapper">
-
-  <header class="site-header">
-    <div class="ornament">
-      <div class="ornament-line"></div>
-      <div class="ornament-mark"></div>
-      <div class="ornament-line r"></div>
-    </div>
-    <h1 class="site-title">Mini Reading Generator</h1>
-    <p class="site-subtitle">Elegant, perceptive, quietly magnetic readings</p>
-  </header>
-
-  <div class="form-card">
-
-    <div class="section-label">Reading</div>
-
-    <!-- Question -->
-    <div class="field">
-      <span class="field-label">Question</span>
-      <div class="select-wrap">
-        <select id="question">
-          <option value="What are people sensing from me right now?">What are people sensing from me right now?</option>
-          <option value="What part of me is asking to be seen?">What part of me is asking to be seen?</option>
-          <option value="What is my energy saying before I speak?">What is my energy saying before I speak?</option>
-        </select>
+  <div class="page-wrapper">
+    <header class="site-header">
+      <div class="ornament">
+        <div class="ornament-line"></div>
+        <div class="ornament-mark"></div>
+        <div class="ornament-line r"></div>
       </div>
-    </div>
+      <h1 class="site-title">Mini Reading Generator</h1>
+      <p class="site-subtitle">Precise, quietly striking three-part readings</p>
+    </header>
 
-    <!-- Length -->
-    <div class="row-two" style="margin-bottom:26px;">
-      <div class="field" style="margin-bottom:0;">
-        <span class="field-label">Output Length</span>
-        <div class="select-wrap">
-          <select id="length">
-            <option value="short">Short · 80–120 words</option>
-            <option value="standard" selected>Standard · 3 paragraphs</option>
-          </select>
+    <div class="form-card">
+      <div class="section-label">Observation</div>
+
+      <div class="field">
+        <span class="field-label">Age Range</span>
+        <div class="age-grid">
+          <button type="button" class="age-btn" data-val="10–20" onclick="selectAge(this)">10–20</button>
+          <button type="button" class="age-btn" data-val="20–30" onclick="selectAge(this)">20–30</button>
+          <button type="button" class="age-btn" data-val="30–40" onclick="selectAge(this)">30–40</button>
+          <button type="button" class="age-btn" data-val="40–50" onclick="selectAge(this)">40–50</button>
+          <button type="button" class="age-btn" data-val="50–60" onclick="selectAge(this)">50–60</button>
+          <button type="button" class="age-btn" data-val="60–70" onclick="selectAge(this)">60–70</button>
+          <button type="button" class="age-btn" data-val="70+" onclick="selectAge(this)">70+</button>
         </div>
       </div>
-      <div></div>
-    </div>
 
-    <!-- Age Range -->
-    <div class="field">
-      <span class="field-label">Age Range</span>
-      <div class="age-grid" id="age-grid">
-        <button class="age-btn" data-val="10–20" onclick="selectAge(this)">10–20</button>
-        <button class="age-btn" data-val="20–30" onclick="selectAge(this)">20–30</button>
-        <button class="age-btn" data-val="30–40" onclick="selectAge(this)">30–40</button>
-        <button class="age-btn" data-val="40–50" onclick="selectAge(this)">40–50</button>
-        <button class="age-btn" data-val="50–60" onclick="selectAge(this)">50–60</button>
-        <button class="age-btn" data-val="60–70" onclick="selectAge(this)">60–70</button>
-        <button class="age-btn" data-val="70+"   onclick="selectAge(this)">70+</button>
-      </div>
-    </div>
+      <div class="divider"></div>
 
-    <div class="divider"></div>
-    <div class="section-label">Observation</div>
-
-    <!-- Visible Impression -->
-    <div class="field">
-      <span class="field-label">Visible Impression</span>
-      <span class="field-hint">Select up to 2</span>
-      <div class="chip-grid" id="chips-impression" data-key="impression" data-max="2">
-        <div class="chip" data-val="Polished"     onclick="toggleChip(this)">Polished</div>
-        <div class="chip" data-val="Warm"         onclick="toggleChip(this)">Warm</div>
-        <div class="chip" data-val="Reserved"     onclick="toggleChip(this)">Reserved</div>
-        <div class="chip" data-val="Confident"    onclick="toggleChip(this)">Confident</div>
-        <div class="chip" data-val="Elegant"      onclick="toggleChip(this)">Elegant</div>
-        <div class="chip" data-val="Mysterious"   onclick="toggleChip(this)">Mysterious</div>
-        <div class="chip" data-val="Soft"         onclick="toggleChip(this)">Soft</div>
-        <div class="chip" data-val="Powerful"     onclick="toggleChip(this)">Powerful</div>
-        <div class="chip" data-val="Approachable" onclick="toggleChip(this)">Approachable</div>
-        <div class="chip" data-val="Intense"      onclick="toggleChip(this)">Intense</div>
-        <div class="chip chip-other" data-val="Other" onclick="toggleChip(this)">Other</div>
-      </div>
-      <div class="other-reveal" id="other-impression">
-        <input type="text" placeholder="Describe the visible impression…">
-      </div>
-    </div>
-
-    <!-- Style -->
-    <div class="field">
-      <span class="field-label">Style / Clothing / Colors</span>
-      <span class="field-hint">Select up to 2</span>
-      <div class="chip-grid" id="chips-style" data-key="style" data-max="2">
-        <div class="chip" data-val="Classic neutrals"     onclick="toggleChip(this)">Classic neutrals</div>
-        <div class="chip" data-val="Soft feminine"        onclick="toggleChip(this)">Soft feminine</div>
-        <div class="chip" data-val="Quiet luxury"         onclick="toggleChip(this)">Quiet luxury</div>
-        <div class="chip" data-val="Minimal and clean"    onclick="toggleChip(this)">Minimal and clean</div>
-        <div class="chip" data-val="Bold and striking"    onclick="toggleChip(this)">Bold and striking</div>
-        <div class="chip" data-val="Romantic"             onclick="toggleChip(this)">Romantic</div>
-        <div class="chip" data-val="Artistic"             onclick="toggleChip(this)">Artistic</div>
-        <div class="chip" data-val="Structured / tailored" onclick="toggleChip(this)">Structured / tailored</div>
-        <div class="chip" data-val="Casual refined"       onclick="toggleChip(this)">Casual refined</div>
-        <div class="chip" data-val="Dark and elegant"     onclick="toggleChip(this)">Dark and elegant</div>
-        <div class="chip chip-other" data-val="Other" onclick="toggleChip(this)">Other</div>
-      </div>
-      <div class="other-reveal" id="other-style">
-        <input type="text" placeholder="Describe the style…">
-      </div>
-    </div>
-
-    <!-- Facial Expression -->
-    <div class="field">
-      <span class="field-label">Facial Expression</span>
-      <span class="field-hint">Select up to 2</span>
-      <div class="chip-grid" id="chips-face" data-key="face" data-max="2">
-        <div class="chip" data-val="Calm"                       onclick="toggleChip(this)">Calm</div>
-        <div class="chip" data-val="Guarded"                    onclick="toggleChip(this)">Guarded</div>
-        <div class="chip" data-val="Gentle"                     onclick="toggleChip(this)">Gentle</div>
-        <div class="chip" data-val="Serious"                    onclick="toggleChip(this)">Serious</div>
-        <div class="chip" data-val="Kind"                       onclick="toggleChip(this)">Kind</div>
-        <div class="chip" data-val="Unreadable"                 onclick="toggleChip(this)">Unreadable</div>
-        <div class="chip" data-val="Observant"                  onclick="toggleChip(this)">Observant</div>
-        <div class="chip" data-val="Composed"                   onclick="toggleChip(this)">Composed</div>
-        <div class="chip" data-val="Tired but holding it together" onclick="toggleChip(this)">Tired but holding it together</div>
-        <div class="chip" data-val="Slightly distant"           onclick="toggleChip(this)">Slightly distant</div>
-        <div class="chip chip-other" data-val="Other" onclick="toggleChip(this)">Other</div>
-      </div>
-      <div class="other-reveal" id="other-face">
-        <input type="text" placeholder="Describe the expression…">
-      </div>
-    </div>
-
-    <!-- Body Language -->
-    <div class="field">
-      <span class="field-label">Body Language</span>
-      <span class="field-hint">Select up to 2</span>
-      <div class="chip-grid" id="chips-body" data-key="body" data-max="2">
-        <div class="chip" data-val="Relaxed"           onclick="toggleChip(this)">Relaxed</div>
-        <div class="chip" data-val="Controlled"        onclick="toggleChip(this)">Controlled</div>
-        <div class="chip" data-val="Upright"           onclick="toggleChip(this)">Upright</div>
-        <div class="chip" data-val="Graceful"          onclick="toggleChip(this)">Graceful</div>
-        <div class="chip" data-val="Guarded"           onclick="toggleChip(this)">Guarded</div>
-        <div class="chip" data-val="Self-possessed"    onclick="toggleChip(this)">Self-possessed</div>
-        <div class="chip" data-val="Slightly tense"    onclick="toggleChip(this)">Slightly tense</div>
-        <div class="chip" data-val="Open"              onclick="toggleChip(this)">Open</div>
-        <div class="chip" data-val="Deliberate"        onclick="toggleChip(this)">Deliberate</div>
-        <div class="chip" data-val="Quietly commanding" onclick="toggleChip(this)">Quietly commanding</div>
-        <div class="chip chip-other" data-val="Other" onclick="toggleChip(this)">Other</div>
-      </div>
-      <div class="other-reveal" id="other-body">
-        <input type="text" placeholder="Describe the body language…">
-      </div>
-    </div>
-
-    <!-- Voice / Presence -->
-    <div class="field">
-      <span class="field-label">Voice / Pace / Presence</span>
-      <span class="field-hint">Select up to 2</span>
-      <div class="chip-grid" id="chips-voice" data-key="voice" data-max="2">
-        <div class="chip" data-val="Soft-spoken"        onclick="toggleChip(this)">Soft-spoken</div>
-        <div class="chip" data-val="Measured"           onclick="toggleChip(this)">Measured</div>
-        <div class="chip" data-val="Calm and steady"    onclick="toggleChip(this)">Calm and steady</div>
-        <div class="chip" data-val="Warm"               onclick="toggleChip(this)">Warm</div>
-        <div class="chip" data-val="Elegant"            onclick="toggleChip(this)">Elegant</div>
-        <div class="chip" data-val="Quiet but powerful" onclick="toggleChip(this)">Quiet but powerful</div>
-        <div class="chip" data-val="Slow and deliberate" onclick="toggleChip(this)">Slow and deliberate</div>
-        <div class="chip" data-val="Clear and direct"   onclick="toggleChip(this)">Clear and direct</div>
-        <div class="chip" data-val="Reserved"           onclick="toggleChip(this)">Reserved</div>
-        <div class="chip" data-val="Magnetic"           onclick="toggleChip(this)">Magnetic</div>
-        <div class="chip chip-other" data-val="Other" onclick="toggleChip(this)">Other</div>
-      </div>
-      <div class="other-reveal" id="other-voice">
-        <input type="text" placeholder="Describe the voice or presence…">
-      </div>
-    </div>
-
-    <!-- Emotional Impression -->
-    <div class="field">
-      <span class="field-label">Emotional Impression</span>
-      <span class="field-hint">Select up to 2</span>
-      <div class="chip-grid" id="chips-emotion" data-key="emotion" data-max="2">
-        <div class="chip" data-val="Holding back"                  onclick="toggleChip(this)">Holding back</div>
-        <div class="chip" data-val="Longing to be seen"            onclick="toggleChip(this)">Longing to be seen</div>
-        <div class="chip" data-val="Carrying a quiet sadness"      onclick="toggleChip(this)">Carrying a quiet sadness</div>
-        <div class="chip" data-val="Deeply self-controlled"        onclick="toggleChip(this)">Deeply self-controlled</div>
-        <div class="chip" data-val="Emotionally tired"             onclick="toggleChip(this)">Emotionally tired</div>
-        <div class="chip" data-val="More sensitive than they appear" onclick="toggleChip(this)">More sensitive than they appear</div>
-        <div class="chip" data-val="Protecting their energy"       onclick="toggleChip(this)">Protecting their energy</div>
-        <div class="chip" data-val="Ready for a shift"             onclick="toggleChip(this)">Ready for a shift</div>
-        <div class="chip" data-val="Craving softness"              onclick="toggleChip(this)">Craving softness</div>
-        <div class="chip" data-val="Used to being strong"          onclick="toggleChip(this)">Used to being strong</div>
-        <div class="chip chip-other" data-val="Other" onclick="toggleChip(this)">Other</div>
-      </div>
-      <div class="other-reveal" id="other-emotion">
-        <input type="text" placeholder="Describe the emotional impression…">
-      </div>
-    </div>
-
-    <div class="divider"></div>
-    <div class="section-label">Refinement</div>
-
-    <!-- Product connection -->
-    <div class="row-two">
-      <div class="field" style="margin-bottom:0;">
-        <span class="field-label">Soft Product Connection?</span>
-        <div class="select-wrap">
-          <select id="product-connect" onchange="toggleProduct()">
-            <option value="no">No</option>
-            <option value="yes">Yes</option>
-          </select>
+      <div class="field">
+        <span class="field-label">Visible Impression</span>
+        <span class="field-hint">Choose up to 2</span>
+        <div class="chip-grid" data-key="impression" data-max="2">
+          <div class="chip" data-val="Polished" onclick="toggleChip(this)">Polished</div>
+          <div class="chip" data-val="Warm" onclick="toggleChip(this)">Warm</div>
+          <div class="chip" data-val="Reserved" onclick="toggleChip(this)">Reserved</div>
+          <div class="chip" data-val="Confident" onclick="toggleChip(this)">Confident</div>
+          <div class="chip" data-val="Elegant" onclick="toggleChip(this)">Elegant</div>
+          <div class="chip" data-val="Mysterious" onclick="toggleChip(this)">Mysterious</div>
+          <div class="chip" data-val="Soft" onclick="toggleChip(this)">Soft</div>
+          <div class="chip" data-val="Powerful" onclick="toggleChip(this)">Powerful</div>
+          <div class="chip" data-val="Approachable" onclick="toggleChip(this)">Approachable</div>
+          <div class="chip" data-val="Intense" onclick="toggleChip(this)">Intense</div>
+          <div class="chip chip-other" data-val="Other" onclick="toggleChip(this)">Other</div>
+        </div>
+        <div class="other-reveal" id="other-impression">
+          <input type="text" placeholder="Other visible impression..." />
         </div>
       </div>
-      <div class="field other-reveal" id="product-field" style="margin-bottom:0;">
-        <span class="field-label">Connect to</span>
-        <div class="select-wrap">
-          <select id="product">
-            <option value="kimono robe">Kimono Robe</option>
-            <option value="obi">Obi</option>
-            <option value="hair accessories">Hair Accessories</option>
-          </select>
+
+      <div class="field">
+        <span class="field-label">Facial Expression</span>
+        <span class="field-hint">Choose up to 2</span>
+        <div class="chip-grid" data-key="face" data-max="2">
+          <div class="chip" data-val="Calm" onclick="toggleChip(this)">Calm</div>
+          <div class="chip" data-val="Guarded" onclick="toggleChip(this)">Guarded</div>
+          <div class="chip" data-val="Gentle" onclick="toggleChip(this)">Gentle</div>
+          <div class="chip" data-val="Serious" onclick="toggleChip(this)">Serious</div>
+          <div class="chip" data-val="Kind" onclick="toggleChip(this)">Kind</div>
+          <div class="chip" data-val="Unreadable" onclick="toggleChip(this)">Unreadable</div>
+          <div class="chip" data-val="Observant" onclick="toggleChip(this)">Observant</div>
+          <div class="chip" data-val="Composed" onclick="toggleChip(this)">Composed</div>
+          <div class="chip" data-val="Tired but holding it together" onclick="toggleChip(this)">Tired but holding it together</div>
+          <div class="chip" data-val="Slightly distant" onclick="toggleChip(this)">Slightly distant</div>
+          <div class="chip chip-other" data-val="Other" onclick="toggleChip(this)">Other</div>
+        </div>
+        <div class="other-reveal" id="other-face">
+          <input type="text" placeholder="Other facial expression..." />
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field-label">Body Language</span>
+        <span class="field-hint">Choose up to 2</span>
+        <div class="chip-grid" data-key="body" data-max="2">
+          <div class="chip" data-val="Relaxed" onclick="toggleChip(this)">Relaxed</div>
+          <div class="chip" data-val="Controlled" onclick="toggleChip(this)">Controlled</div>
+          <div class="chip" data-val="Upright" onclick="toggleChip(this)">Upright</div>
+          <div class="chip" data-val="Graceful" onclick="toggleChip(this)">Graceful</div>
+          <div class="chip" data-val="Guarded" onclick="toggleChip(this)">Guarded</div>
+          <div class="chip" data-val="Self-possessed" onclick="toggleChip(this)">Self-possessed</div>
+          <div class="chip" data-val="Slightly tense" onclick="toggleChip(this)">Slightly tense</div>
+          <div class="chip" data-val="Open" onclick="toggleChip(this)">Open</div>
+          <div class="chip" data-val="Deliberate" onclick="toggleChip(this)">Deliberate</div>
+          <div class="chip" data-val="Quietly commanding" onclick="toggleChip(this)">Quietly commanding</div>
+          <div class="chip chip-other" data-val="Other" onclick="toggleChip(this)">Other</div>
+        </div>
+        <div class="other-reveal" id="other-body">
+          <input type="text" placeholder="Other body language..." />
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field-label">Emotional Impression</span>
+        <span class="field-hint">Choose up to 2</span>
+        <div class="chip-grid" data-key="emotion" data-max="2">
+          <div class="chip" data-val="Holding back" onclick="toggleChip(this)">Holding back</div>
+          <div class="chip" data-val="Longing to be seen" onclick="toggleChip(this)">Longing to be seen</div>
+          <div class="chip" data-val="Carrying a quiet sadness" onclick="toggleChip(this)">Carrying a quiet sadness</div>
+          <div class="chip" data-val="Deeply self-controlled" onclick="toggleChip(this)">Deeply self-controlled</div>
+          <div class="chip" data-val="Emotionally tired" onclick="toggleChip(this)">Emotionally tired</div>
+          <div class="chip" data-val="More sensitive than they appear" onclick="toggleChip(this)">More sensitive than they appear</div>
+          <div class="chip" data-val="Protecting their energy" onclick="toggleChip(this)">Protecting their energy</div>
+          <div class="chip" data-val="Ready for a shift" onclick="toggleChip(this)">Ready for a shift</div>
+          <div class="chip" data-val="Craving softness" onclick="toggleChip(this)">Craving softness</div>
+          <div class="chip" data-val="Used to being strong" onclick="toggleChip(this)">Used to being strong</div>
+          <div class="chip chip-other" data-val="Other" onclick="toggleChip(this)">Other</div>
+        </div>
+        <div class="other-reveal" id="other-emotion">
+          <input type="text" placeholder="Other emotional impression..." />
+        </div>
+      </div>
+
+      <div class="error-msg" id="error-msg"></div>
+
+      <button class="btn-generate" type="button" onclick="generateReading()">Generate Reading</button>
+    </div>
+
+    <div class="output-section" id="output-section">
+      <div class="output-card">
+        <div class="output-eyebrow">Your Reading</div>
+
+        <div class="result-grid" id="result-grid">
+          <div class="placeholder" id="placeholder">Your result will appear here.</div>
+
+          <div class="result-block" id="block-color" style="display:none;">
+            <div class="result-label">Lucky Color</div>
+            <div class="result-value-main" id="lucky-color"></div>
+          </div>
+
+          <div class="result-block" id="block-energy" style="display:none;">
+            <div class="result-label">Current Energy</div>
+            <div class="result-value-energy" id="current-energy"></div>
+          </div>
+
+          <div class="result-block" id="block-message" style="display:none;">
+            <div class="result-label">One Short Message</div>
+            <div class="result-message" id="short-message"></div>
+          </div>
+        </div>
+
+        <div class="output-actions">
+          <button class="btn-action" id="copy-btn" type="button" onclick="copyReading()">Copy Reading</button>
+          <button class="btn-action" type="button" onclick="clearAll()">Clear</button>
         </div>
       </div>
     </div>
 
-    <!-- Notes -->
-    <div class="field" style="margin-top:26px;">
-      <span class="field-label">Additional Notes
-        <span style="opacity:.45;font-weight:300;letter-spacing:0.06em;text-transform:none;font-size:10px;">— optional</span>
-      </span>
-      <textarea id="notes" placeholder="Any nuance you want to add manually…" style="min-height:58px;"></textarea>
-    </div>
-
-    <div class="error-msg" id="error-msg"></div>
-
-    <button class="btn-generate" id="generate-btn" onclick="generateReading()">
-      <div class="btn-inner">
-        <span class="btn-label">Generate Reading</span>
-        <div class="loading-dots" id="loading-dots">
-          <span></span><span></span><span></span>
-        </div>
-      </div>
-    </button>
-
-  </div><!-- /form-card -->
-
-  <!-- Output -->
-  <div class="output-section" id="output-section">
-    <div class="output-card">
-      <div class="output-eyebrow">Your Reading</div>
-      <div class="reading-text" id="reading-text"></div>
-      <div class="output-actions">
-        <button class="btn-action" id="copy-btn" onclick="copyReading()">Copy Reading</button>
-        <button class="btn-action" onclick="clearAll()">Clear</button>
-      </div>
-    </div>
+    <footer class="site-footer">Perceptive &middot; Restrained &middot; Precise</footer>
   </div>
 
-  <footer class="site-footer">Perceptive &middot; Restrained &middot; Precise</footer>
+  <script>
+    const chipState = {
+      impression: [],
+      face: [],
+      body: [],
+      emotion: []
+    };
 
-</div><!-- /page-wrapper -->
+    let selectedAge = '';
 
-<script>
-/* ─── State ───────────────────────────────────────── */
-const chipState = {
-  impression: [], style: [], face: [],
-  body: [], voice: [], emotion: []
-};
-let selectedAge = '';
+    const colorMap = {
+      "Deep Green": ["steady", "grounded", "contained", "self-trust"],
+      "Soft Gold": ["visibility", "worth", "warmth", "quiet radiance"],
+      "Smoke Blue": ["composure", "clarity", "cooling", "distance"],
+      "Ivory": ["softness", "reset", "gentleness", "relief"],
+      "Burgundy": ["boundaries", "depth", "seriousness", "self-possession"],
+      "Rose Brown": ["tenderness", "restraint", "warmth", "self-worth"],
+      "Violet": ["sensitivity", "inward strength", "refinement", "depth"],
+      "Charcoal": ["protection", "control", "privacy", "defined edges"],
+      "Olive": ["recovery", "maturity", "rebuilding", "calm"],
+      "Pearl White": ["clearing", "receptivity", "emotional openness", "quiet renewal"]
+    };
 
-/* ─── Age ─────────────────────────────────────────── */
-function selectAge(el) {
-  const prev = selectedAge;
-  document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('selected'));
-  if (prev === el.dataset.val) {
-    selectedAge = '';
-  } else {
-    el.classList.add('selected');
-    selectedAge = el.dataset.val;
-  }
-}
+    const energyPool = {
+      overcontained: "Overcontained",
+      guarded: "Guarded",
+      underseen: "Underseen",
+      depleted: "Quietly depleted",
+      selfProtected: "Self-protected",
+      edited: "Emotionally edited",
+      holding: "Holding too much",
+      composed: "Deeply composed",
+      withheld: "Carefully withheld",
+      strained: "Calm under strain",
+      overextended: "Quietly overextended",
+      hardToReach: "Hard to reach",
+      graceWeight: "Grace under weight"
+    };
 
-/* ─── Chips ───────────────────────────────────────── */
-function toggleChip(el) {
-  const grid    = el.closest('.chip-grid');
-  const key     = grid.dataset.key;
-  const max     = parseInt(grid.dataset.max);
-  const val     = el.dataset.val;
-  const isOther = el.classList.contains('chip-other');
-  const state   = chipState[key];
-  const idx     = state.indexOf(val);
+    function selectAge(el) {
+      const clicked = el.dataset.val;
+      const buttons = document.querySelectorAll('.age-btn');
 
-  if (idx > -1) {
-    state.splice(idx, 1);
-    el.classList.remove('selected');
-    if (isOther) document.getElementById('other-' + key).classList.remove('visible');
-  } else {
-    if (state.length >= max) return;
-    state.push(val);
-    el.classList.add('selected');
-    if (isOther) document.getElementById('other-' + key).classList.add('visible');
-  }
+      if (selectedAge === clicked) {
+        selectedAge = '';
+        buttons.forEach(btn => btn.classList.remove('selected'));
+        return;
+      }
 
-  grid.querySelectorAll('.chip').forEach(c => {
-    if (!c.classList.contains('selected')) {
-      c.classList.toggle('disabled', state.length >= max);
-    }
-  });
-}
-
-/* ─── Product ─────────────────────────────────────── */
-function toggleProduct() {
-  const show = document.getElementById('product-connect').value === 'yes';
-  document.getElementById('product-field').classList.toggle('visible', show);
-}
-
-/* ─── Read chip values ────────────────────────────── */
-function getChipValue(key) {
-  const vals = chipState[key].filter(v => v !== 'Other');
-  const otherEl = document.querySelector(`#other-${key} input`);
-  const otherText = otherEl ? otherEl.value.trim() : '';
-  const all = [...vals];
-  if (chipState[key].includes('Other') && otherText) all.push(otherText);
-  return all.join(', ');
-}
-
-/* ─── Build prompts ───────────────────────────────── */
-function buildSystemPrompt() {
-  return `You write short, sharp, personalized mini readings in elegant English.
-
-Your writing must feel:
-- clear
-- specific
-- emotionally precise
-- slightly chilling in a sophisticated way
-- easy to understand in one reading
-
-The reader should think:
-"How did you see that so fast?"
-
-Core rules:
-- Be direct. No rambling.
-- Use simple, natural English.
-- No vague metaphors unless they land immediately.
-- No generic spirituality.
-- No therapy language.
-- No flattery.
-- No fortune teller clichés.
-- No horoscope tone.
-- No dramatic prophecy.
-- No filler.
-
-Forbidden words and concepts:
-spirits, destiny, past lives, twin flames, soulmates, curses, alignment, universe, vibration, manifesting
-
-Writing rules:
-- Start with the strongest observation immediately.
-- Say what people feel, notice, or sense.
-- Name the hidden tension underneath it.
-- End with one short, elegant suggestion.
-- Every line must feel personal.
-- If a sentence could apply to almost anyone, do not write it.
-
-Target effect:
-short, clean, accurate, and "wow."`;
-}
-
-function buildUserPrompt() {
-  const question   = document.getElementById('question').value;
-  const lengthPref = document.getElementById('length').value;
-  const useProduct = document.getElementById('product-connect').value === 'yes';
-  const product    = document.getElementById('product').value;
-  const notes      = document.getElementById('notes').value.trim();
-
-  const impression = getChipValue('impression');
-  const style      = getChipValue('style');
-  const face       = getChipValue('face');
-  const body       = getChipValue('body');
-  const voice      = getChipValue('voice');
-  const emotion    = getChipValue('emotion');
-
-  const lengthInstr = lengthPref === 'short'
-    ? `Write exactly 3 sentences.
-Sentence 1: what people sense / notice.
-Sentence 2: the hidden truth underneath.
-Sentence 3: one soft, elegant suggestion.
-Keep total length between 45 and 75 words.`
-    : `Write 4 to 6 short sentences total.
-No more than 2 short paragraphs.
-Keep total length between 70 and 120 words.
-Every sentence must be clear and hit immediately.`;
-
-  const productInstr = useProduct
-    ? `If it fits naturally, add one short sentence or phrase that subtly connects the reading to ${product}. Do not sell. Do not recommend. Make it feel like a quiet aesthetic extension of the reading.`
-    : `Do not mention any product.`;
-
-  const parts = [];
-  if (selectedAge) parts.push(`Age range: ${selectedAge}`);
-  if (impression)  parts.push(`Visible impression: ${impression}`);
-  if (style)       parts.push(`Style / clothing / colors: ${style}`);
-  if (face)        parts.push(`Facial expression: ${face}`);
-  if (body)        parts.push(`Body language: ${body}`);
-  if (voice)       parts.push(`Voice / pace / presence: ${voice}`);
-  if (emotion)     parts.push(`Emotional impression: ${emotion}`);
-  if (notes)       parts.push(`Additional notes: ${notes}`);
-
-  return `Write one personalized mini reading.
-
-Chosen question:
-"${question}"
-
-Observed details:
-${parts.length ? parts.join('\n') : '(minimal observations — rely on the question and create a clean, sharp reading)'}
-
-Important:
-1. Find the one strongest contradiction, restraint, or hidden truth in the observations.
-2. Make that the center of the reading.
-3. Be concrete, not abstract.
-4. The reading must feel precise within seconds.
-5. Keep it elegant, but do not make it ornate.
-6. The best line should feel like something true that other people notice but never say.
-
-Required structure:
-- First: what people sense / notice / feel
-- Second: what that actually means underneath
-- Last: one quiet suggestion
-
-Tone:
-- sharp
-- elegant
-- restrained
-- perceptive
-- simple
-- memorable
-
-Avoid:
-- long openings
-- poetic over-explaining
-- soft vague language
-- anything generic
-- anything cheesy
-
-${lengthInstr}
-
-${productInstr}
-
-Output only the reading text. No title. No bullets. No labels.`;
-}
-
-/* ─── Validate ────────────────────────────────────── */
-function hasEnoughData() {
-  return (
-    getChipValue('impression') ||
-    getChipValue('emotion')    ||
-    getChipValue('face')       ||
-    getChipValue('body')       ||
-    document.getElementById('notes').value.trim()
-  );
-}
-
-/* ─── Generate ────────────────────────────────────── */
-async function generateReading() {
-  const btn       = document.getElementById('generate-btn');
-  const label     = btn.querySelector('.btn-label');
-  const dots      = document.getElementById('loading-dots');
-  const errorEl   = document.getElementById('error-msg');
-  const outputSec = document.getElementById('output-section');
-  const readingEl = document.getElementById('reading-text');
-
-  errorEl.classList.remove('visible');
-
-  if (!hasEnoughData()) {
-    errorEl.textContent = 'Please select at least one observation — impression, expression, emotion, or add a personal note.';
-    errorEl.classList.add('visible');
-    return;
-  }
-
-  btn.disabled = true;
-  label.textContent = 'Composing';
-  dots.style.display = 'flex';
-
-  readingEl.innerHTML = '<span class="cursor-blink"></span>';
-  outputSec.classList.add('visible');
-  setTimeout(() => outputSec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
-
-  try {
-    const response = await fetch('/api/generate-reading', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemPrompt: buildSystemPrompt(),
-        userPrompt:   buildUserPrompt(),
-      }),
-    });
-
-    if (!response.ok) {
-      const body = await response.json().catch(() => ({}));
-      throw new Error(body?.error ?? `Server error ${response.status}`);
+      selectedAge = clicked;
+      buttons.forEach(btn => btn.classList.remove('selected'));
+      el.classList.add('selected');
     }
 
-    const reader  = response.body.getReader();
-    const decoder = new TextDecoder();
-    let fullText  = '';
-    readingEl.innerHTML = '';
+    function toggleChip(el) {
+      const grid = el.closest('.chip-grid');
+      const key = grid.dataset.key;
+      const max = parseInt(grid.dataset.max, 10);
+      const val = el.dataset.val;
+      const state = chipState[key];
+      const isOther = el.classList.contains('chip-other');
+      const idx = state.indexOf(val);
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-
-      for (const line of chunk.split('\n')) {
-        if (!line.startsWith('data: ')) continue;
-        const raw = line.slice(6).trim();
-        if (raw === '[DONE]') continue;
-
-        try {
-          const parsed = JSON.parse(raw);
-
-          if (parsed.error) throw new Error(parsed.error);
-
-          if (parsed.text) {
-            fullText += parsed.text;
-            renderReading(readingEl, fullText, true);
-          }
-        } catch (parseErr) {
-          if (parseErr.message !== 'Unexpected end of JSON input') throw parseErr;
+      if (idx > -1) {
+        state.splice(idx, 1);
+        el.classList.remove('selected');
+        if (isOther) {
+          document.getElementById(`other-${key}`).classList.remove('visible');
+          const input = document.querySelector(`#other-${key} input`);
+          if (input) input.value = '';
+        }
+      } else {
+        if (state.length >= max) return;
+        state.push(val);
+        el.classList.add('selected');
+        if (isOther) {
+          document.getElementById(`other-${key}`).classList.add('visible');
         }
       }
+
+      grid.querySelectorAll('.chip').forEach(chip => {
+        if (!chip.classList.contains('selected')) {
+          chip.classList.toggle('disabled', state.length >= max);
+        }
+      });
     }
 
-    renderReading(readingEl, fullText, false);
+    function getChipValues(key) {
+      const selected = chipState[key].filter(v => v !== 'Other');
+      const otherInput = document.querySelector(`#other-${key} input`);
+      const otherText = otherInput ? otherInput.value.trim() : '';
 
-  } catch (err) {
-    readingEl.innerHTML = '';
-    outputSec.classList.remove('visible');
-    errorEl.textContent = `Something went wrong: ${err.message}`;
-    errorEl.classList.add('visible');
-  } finally {
-    btn.disabled = false;
-    label.textContent = 'Generate Reading';
-    dots.style.display = 'none';
-  }
-}
+      if (chipState[key].includes('Other') && otherText) {
+        selected.push(otherText);
+      }
 
-/* ─── Render ──────────────────────────────────────── */
-function renderReading(el, text, streaming) {
-  const paras = text.trim().split(/\n\n+/);
-  let html = paras.map((p, i) => {
-    const t = p.replace(/\n/g, ' ').trim();
-    if (!t) return '';
-    if (streaming && i === paras.length - 1) return `<p>${t}<span class="cursor-blink"></span></p>`;
-    return `<p>${t}</p>`;
-  }).filter(Boolean).join('');
-  if (streaming && !text.includes('\n\n')) {
-    html = `<p>${text.replace(/\n/g, ' ')}<span class="cursor-blink"></span></p>`;
-  }
-  el.innerHTML = html;
-}
+      return selected;
+    }
 
-/* ─── Copy ────────────────────────────────────────── */
-function copyReading() {
-  const text = document.getElementById('reading-text').innerText.trim();
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('copy-btn');
-    const orig = btn.textContent;
-    btn.textContent = 'Copied';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
-  }).catch(() => {
-    const range = document.createRange();
-    range.selectNode(document.getElementById('reading-text'));
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
-    document.execCommand('copy');
-    window.getSelection().removeAllRanges();
-  });
-}
+    function hasEnoughData() {
+      return (
+        selectedAge ||
+        getChipValues('impression').length ||
+        getChipValues('face').length ||
+        getChipValues('body').length ||
+        getChipValues('emotion').length
+      );
+    }
 
-/* ─── Clear ───────────────────────────────────────── */
-function clearAll() {
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected', 'disabled'));
-  Object.keys(chipState).forEach(k => chipState[k] = []);
+    function includesAny(values, targets) {
+      const haystack = values.map(v => v.toLowerCase());
+      return targets.some(target =>
+        haystack.some(v => v.includes(target.toLowerCase()))
+      );
+    }
 
-  document.querySelectorAll('[id^="other-"]').forEach(el => {
-    el.classList.remove('visible');
-    const inp = el.querySelector('input, textarea');
-    if (inp) inp.value = '';
-  });
+    function pickLuckyColor(impression, face, body, emotion) {
+      if (
+        includesAny(emotion, ['Holding back', 'Deeply self-controlled']) ||
+        includesAny(body, ['Controlled', 'Guarded']) ||
+        includesAny(face, ['Guarded', 'Composed'])
+      ) return 'Soft Gold';
 
-  document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('selected'));
-  selectedAge = '';
+      if (
+        includesAny(emotion, ['Emotionally tired', 'Carrying a quiet sadness']) ||
+        includesAny(face, ['Tired but holding it together']) ||
+        includesAny(body, ['Slightly tense'])
+      ) return 'Ivory';
 
-  document.getElementById('question').selectedIndex = 0;
-  document.getElementById('length').selectedIndex   = 1;
-  document.getElementById('product-connect').selectedIndex = 0;
-  document.getElementById('product-field').classList.remove('visible');
-  document.getElementById('notes').value = '';
+      if (
+        includesAny(emotion, ['Protecting their energy']) ||
+        includesAny(body, ['Guarded']) ||
+        includesAny(impression, ['Reserved', 'Mysterious'])
+      ) return 'Charcoal';
 
-  document.getElementById('output-section').classList.remove('visible');
-  document.getElementById('reading-text').innerHTML = '';
-  document.getElementById('error-msg').classList.remove('visible');
+      if (
+        includesAny(emotion, ['Longing to be seen', 'Craving softness']) ||
+        includesAny(impression, ['Soft', 'Warm']) ||
+        includesAny(face, ['Gentle', 'Kind'])
+      ) return 'Rose Brown';
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-</script>
+      if (
+        includesAny(impression, ['Powerful', 'Intense']) ||
+        includesAny(body, ['Quietly commanding', 'Upright']) ||
+        includesAny(face, ['Serious', 'Unreadable'])
+      ) return 'Burgundy';
+
+      if (
+        includesAny(impression, ['Elegant', 'Polished']) ||
+        includesAny(face, ['Observant']) ||
+        includesAny(body, ['Graceful', 'Self-possessed'])
+      ) return 'Smoke Blue';
+
+      if (
+        includesAny(emotion, ['Ready for a shift']) ||
+        includesAny(impression, ['Approachable']) ||
+        includesAny(body, ['Open'])
+      ) return 'Olive';
+
+      if (
+        includesAny(emotion, ['More sensitive than they appear']) ||
+        includesAny(impression, ['Mysterious']) ||
+        includesAny(face, ['Unreadable'])
+      ) return 'Violet';
+
+      if (
+        includesAny(impression, ['Warm']) &&
+        includesAny(face, ['Kind'])
+      ) return 'Pearl White';
+
+      return 'Deep Green';
+    }
+
+    function pickCurrentEnergy(impression, face, body, emotion) {
+      if (
+        includesAny(emotion, ['Holding back', 'Deeply self-controlled']) &&
+        includesAny(body, ['Controlled', 'Deliberate'])
+      ) return energyPool.overcontained;
+
+      if (
+        includesAny(emotion, ['Protecting their energy']) ||
+        includesAny(face, ['Guarded']) ||
+        includesAny(body, ['Guarded'])
+      ) return energyPool.guarded;
+
+      if (
+        includesAny(emotion, ['Longing to be seen'])
+      ) return energyPool.underseen;
+
+      if (
+        includesAny(emotion, ['Emotionally tired', 'Carrying a quiet sadness']) ||
+        includesAny(face, ['Tired but holding it together'])
+      ) return energyPool.depleted;
+
+      if (
+        includesAny(emotion, ['More sensitive than they appear'])
+      ) return energyPool.edited;
+
+      if (
+        includesAny(emotion, ['Used to being strong']) &&
+        includesAny(body, ['Upright', 'Self-possessed', 'Quietly commanding'])
+      ) return energyPool.graceWeight;
+
+      if (
+        includesAny(impression, ['Reserved']) &&
+        includesAny(face, ['Unreadable', 'Slightly distant'])
+      ) return energyPool.hardToReach;
+
+      if (
+        includesAny(face, ['Composed']) &&
+        includesAny(body, ['Controlled', 'Deliberate'])
+      ) return energyPool.composed;
+
+      if (
+        includesAny(body, ['Slightly tense']) &&
+        includesAny(face, ['Calm', 'Composed'])
+      ) return energyPool.strained;
+
+      return energyPool.selfProtected;
+    }
+
+    function pickShortMessage(impression, face, body, emotion) {
+      const patterns = [
+        {
+          if: () =>
+            includesAny(emotion, ['Holding back', 'Deeply self-controlled']) &&
+            includesAny(body, ['Controlled', 'Deliberate']),
+          text: 'You have made composure so convincing that almost nobody sees the cost of it.'
+        },
+        {
+          if: () =>
+            includesAny(emotion, ['Emotionally tired', 'Carrying a quiet sadness']) ||
+            includesAny(face, ['Tired but holding it together']),
+          text: 'You carry more than you show, and people have slowly learned to rely on that silence.'
+        },
+        {
+          if: () =>
+            includesAny(emotion, ['Longing to be seen']),
+          text: 'You are easier to admire than to truly see, and that difference has stayed longer than it should.'
+        },
+        {
+          if: () =>
+            includesAny(emotion, ['Protecting their energy']) ||
+            includesAny(face, ['Guarded']) ||
+            includesAny(body, ['Guarded']),
+          text: 'What protects your peace is also making you harder to reach than you realize.'
+        },
+        {
+          if: () =>
+            includesAny(impression, ['Elegant', 'Polished']) &&
+            includesAny(emotion, ['Used to being strong']),
+          text: 'What people call grace in you may simply be the shape your burden has learned to take.'
+        },
+        {
+          if: () =>
+            includesAny(impression, ['Warm', 'Approachable']) &&
+            includesAny(face, ['Slightly distant', 'Unreadable']),
+          text: 'People feel warmth from you first, and miss how carefully the rest of you stays protected.'
+        },
+        {
+          if: () =>
+            includesAny(impression, ['Powerful', 'Intense']) &&
+            includesAny(emotion, ['More sensitive than they appear']),
+          text: 'The strength people notice first is real, but it has also become the part of you they stop questioning.'
+        },
+        {
+          if: () =>
+            includesAny(impression, ['Reserved']) &&
+            includesAny(body, ['Self-possessed', 'Quietly commanding']),
+          text: 'You have become so controlled in what you show that others assume there is less to ask about.'
+        },
+        {
+          if: () =>
+            includesAny(face, ['Kind', 'Gentle']) &&
+            includesAny(emotion, ['Craving softness']),
+          text: 'You offer softness so naturally that people rarely notice how little of it is coming back to you.'
+        },
+        {
+          if: () =>
+            includesAny(face, ['Composed']) &&
+            includesAny(body, ['Slightly tense']),
+          text: 'People read your calm as ease, not realizing how much effort it is still holding in place.'
+        }
+      ];
+
+      const match = patterns.find(p => p.if());
+      if (match) return match.text;
+
+      return 'What feels natural in the way you hold yourself is something others notice more deeply than they know how to name.';
+    }
+
+    function generateReading() {
+      const errorEl = document.getElementById('error-msg');
+      const outputSection = document.getElementById('output-section');
+      const placeholder = document.getElementById('placeholder');
+
+      errorEl.classList.remove('visible');
+
+      if (!hasEnoughData()) {
+        errorEl.textContent = 'Please choose at least one observation.';
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      const impression = getChipValues('impression');
+      const face = getChipValues('face');
+      const body = getChipValues('body');
+      const emotion = getChipValues('emotion');
+
+      const luckyColor = pickLuckyColor(impression, face, body, emotion);
+      const currentEnergy = pickCurrentEnergy(impression, face, body, emotion);
+      const shortMessage = pickShortMessage(impression, face, body, emotion);
+
+      document.getElementById('lucky-color').textContent = luckyColor;
+      document.getElementById('current-energy').textContent = currentEnergy;
+      document.getElementById('short-message').textContent = shortMessage;
+
+      document.getElementById('block-color').style.display = 'block';
+      document.getElementById('block-energy').style.display = 'block';
+      document.getElementById('block-message').style.display = 'block';
+      placeholder.style.display = 'none';
+
+      outputSection.classList.add('visible');
+      setTimeout(() => outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    }
+
+    function copyReading() {
+      const color = document.getElementById('lucky-color').textContent.trim();
+      const energy = document.getElementById('current-energy').textContent.trim();
+      const message = document.getElementById('short-message').textContent.trim();
+
+      if (!color && !energy && !message) return;
+
+      const fullText = `Lucky Color\n${color}\n\nCurrent Energy\n${energy}\n\nOne short message\n${message}`;
+
+      navigator.clipboard.writeText(fullText).then(() => {
+        const btn = document.getElementById('copy-btn');
+        const original = btn.textContent;
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1800);
+      });
+    }
+
+    function clearAll() {
+      document.querySelectorAll('.chip').forEach(chip => chip.classList.remove('selected', 'disabled'));
+      Object.keys(chipState).forEach(key => chipState[key] = []);
+      document.querySelectorAll('.other-reveal').forEach(el => {
+        el.classList.remove('visible');
+        const input = el.querySelector('input');
+        if (input) input.value = '';
+      });
+      document.querySelectorAll('.age-btn').forEach(btn => btn.classList.remove('selected'));
+      selectedAge = '';
+
+      document.getElementById('lucky-color').textContent = '';
+      document.getElementById('current-energy').textContent = '';
+      document.getElementById('short-message').textContent = '';
+      document.getElementById('block-color').style.display = 'none';
+      document.getElementById('block-energy').style.display = 'none';
+      document.getElementById('block-message').style.display = 'none';
+      document.getElementById('placeholder').style.display = 'block';
+
+      document.getElementById('error-msg').classList.remove('visible');
+      document.getElementById('output-section').classList.remove('visible');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
 </body>
 </html>
