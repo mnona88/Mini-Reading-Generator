@@ -131,17 +131,11 @@ Message: [one sentence only]
     const response = await client.responses.create({
       model: "gpt-4o",
       input: [
-        {
-          role: "system",
-          content: SYSTEM_PROMPT,
-        },
-        {
-          role: "user",
-          content: userPrompt,
-        },
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userPrompt }
       ],
       temperature: 0.9,
-      max_output_tokens: 120,
+      max_output_tokens: 120
     });
 
     const text =
@@ -150,9 +144,9 @@ Message: [one sentence only]
 
     res.json({ text });
   } catch (error) {
-    console.error(error);
+    console.error("API error:", error);
     res.status(500).json({
-      text: "Color: Grey/Silver\nMessage: You have been holding too much without letting anyone see the weight.",
+      text: "Color: Grey/Silver\nMessage: You have been holding too much without letting anyone see the weight."
     });
   }
 });
@@ -162,5 +156,5 @@ app.get("*", (_req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(\`Server running on http://localhost:\${port}\`);
+  console.log(`Server running on http://localhost:${port}`);
 });
