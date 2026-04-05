@@ -17,7 +17,6 @@ const client = new OpenAI({
 });
 
 const SYSTEM_PROMPT = `
-const SYSTEM_PROMPT = `
 You are a highly precise symbolic reader.
 
 You do not invent colors.
@@ -65,22 +64,22 @@ app.post("/api/generate-reading", async (req, res) => {
       emotionalImpression = [],
     } = req.body || {};
 
-const allowedColors = [
-  "Black",
-  "Rakuda (Camel)",
-  "Midori (Emerald Green)",
-  "Navy",
-  "Sakura (Pink)",
-  "Ivory",
-  "Grey/Silver",
-  "Burgundy",
-  "Dusty Rose",
-  "Soft Blue",
-  "Burnt Orange",
-  "Gold"
-];
+    const allowedColors = [
+      "Black",
+      "Rakuda (Camel)",
+      "Midori (Emerald Green)",
+      "Navy",
+      "Sakura (Pink)",
+      "Ivory",
+      "Grey/Silver",
+      "Burgundy",
+      "Dusty Rose",
+      "Soft Blue",
+      "Burnt Orange",
+      "Gold"
+    ];
 
-const userPrompt = `
+    const userPrompt = `
 Identify the one color this person needs now.
 
 Question:
@@ -163,5 +162,5 @@ app.get("*", (_req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+  console.log(\`Server running on http://localhost:\${port}\`);
 });
