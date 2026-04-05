@@ -156,18 +156,26 @@
       margin: 0 0 10px;
     }
 
-    .result-theme {
-      font-size: 0.95rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(39, 34, 32, 0.58);
+    .result-reason {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: rgba(39, 34, 32, 0.82);
+      max-width: 34ch;
       margin-bottom: 14px;
+    }
+
+    .result-theme {
+      font-size: 0.82rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(39, 34, 32, 0.52);
+      margin-bottom: 12px;
     }
 
     .result-message {
       font-size: 1.18rem;
       line-height: 1.7;
-      max-width: 32ch;
+      max-width: 28ch;
     }
 
     .muted {
@@ -189,6 +197,11 @@
       .btn {
         width: 100%;
         text-align: center;
+      }
+
+      .result-reason,
+      .result-message {
+        max-width: 100%;
       }
     }
   </style>
@@ -225,17 +238,16 @@
 
   <script>
     const colors = [
-      "Midori",
-      "Soft Blue",
-      "Burgundy",
-      "Burnt Orange",
-      "Rakuda",
-      "Ivory",
-      "Grey/Silver",
-      "Gold",
-      "Sumi Black",
-      "Dark Blue",
-      "Sakura"
+      { label: "Green", value: "Midori" },
+      { label: "Light Blue", value: "Soft Blue" },
+      { label: "Wine", value: "Burgundy" },
+      { label: "Pink", value: "Sakura" },
+      { label: "Camel / Beige", value: "Rakuda" },
+      { label: "Ivory", value: "Ivory" },
+      { label: "Silver", value: "Grey/Silver" },
+      { label: "Gold", value: "Gold" },
+      { label: "Black", value: "Sumi Black" },
+      { label: "Navy", value: "Dark Blue" }
     ];
 
     const state = {
@@ -255,10 +267,10 @@
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "chip";
-        btn.textContent = color;
+        btn.textContent = color.label;
 
         btn.addEventListener("click", () => {
-          state.selectedColor = color;
+          state.selectedColor = color.value;
           container.querySelectorAll(".chip").forEach((chip) => chip.classList.remove("active"));
           btn.classList.add("active");
         });
@@ -278,11 +290,13 @@
 
     function parseResult(text) {
       const lines = text.split("\n");
-      const result = { color: "", theme: "", message: "" };
+      const result = { color: "", reason: "", theme: "", message: "" };
 
       for (const line of lines) {
         if (line.startsWith("Color:")) {
           result.color = line.replace("Color:", "").trim();
+        } else if (line.startsWith("Reason:")) {
+          result.reason = line.replace("Reason:", "").trim();
         } else if (line.startsWith("Theme:")) {
           result.theme = line.replace("Theme:", "").trim();
         } else if (line.startsWith("Message:")) {
@@ -294,12 +308,13 @@
     }
 
     function renderResult(text) {
-      const { color, theme, message } = parseResult(text);
+      const { color, reason, theme, message } = parseResult(text);
 
       readingEl.innerHTML = `
         <div class="result-color">${escapeHtml(color || "Ivory")}</div>
-        <div class="result-theme">${escapeHtml(theme || "Return to balance")}</div>
-        <div class="result-message">${escapeHtml(message || "Come back to what steadies you.")}</div>
+        <div class="result-reason">${escapeHtml(reason || "You need simplicity, relief, and room to breathe.")}</div>
+        <div class="result-theme">${escapeHtml(theme || "Put it down")}</div>
+        <div class="result-message">${escapeHtml(message || "You have been carrying too much too well.")}</div>
       `;
     }
 
@@ -331,9 +346,14 @@
         });
 
         const data = await response.json();
-        renderResult(data.text || "Color: Ivory\nTheme: Return to balance\nMessage: Come back to what steadies you.");
+        renderResult(
+          data.text ||
+          "Color: Ivory\nReason: You need simplicity, relief, and room to breathe.\nTheme: Put it down\nMessage: You have been carrying too much too well."
+        );
       } catch (error) {
-        renderResult("Color: Ivory\nTheme: Return to balance\nMessage: Come back to what steadies you.");
+        renderResult(
+          "Color: Ivory\nReason: You need simplicity, relief, and room to breathe.\nTheme: Put it down\nMessage: You have been carrying too much too well."
+        );
       }
     });
 
