@@ -41,6 +41,8 @@ Message: [one line only]
 Rules:
 - The color must be selected only from the allowed color list
 - Never invent a new color
+- Do not favor commercially important colors unless they are the most precise match
+- Select the color with the best psychological fit, not the easiest or prettiest fit
 - The message must be 1 sentence only
 - Max 18 words
 - No generic praise
@@ -79,7 +81,7 @@ app.post("/api/generate-reading", async (req, res) => {
       "Gold"
     ];
 
-    const userPrompt = `
+const userPrompt = `
 Identify the one color this person needs now.
 
 Question:
@@ -88,12 +90,9 @@ Question:
 Allowed color list:
 ${allowedColors.join(", ")}
 
-Priority colors currently sold:
-Black, Rakuda (Camel), Midori (Emerald Green), Navy, Sakura (Pink)
-
 Important rule:
-Prefer the priority colors above whenever they genuinely fit the observations.
-Use another color from the allowed list only if it is clearly more precise.
+Do not favor any color because it is currently sold.
+Choose only the most psychologically precise color from the allowed list.
 
 Observations:
 - Age Range: ${ageRange || "Not provided"}
@@ -106,10 +105,11 @@ Think silently before answering:
 
 1. Find the ONE thing this person is managing, suppressing, or carrying.
 2. Find the tension between how they appear and what they seem to need.
-3. Choose the best color from the allowed color list.
-4. Prefer the priority colors if they fit naturally.
-5. Write one line that names the truth beneath the composure.
-6. If the line could apply to many people, reject it and sharpen it.
+3. Compare the allowed colors carefully and select the single most precise fit.
+4. Do not default to the currently sold colors unless they are clearly the strongest match.
+5. Avoid repeating the same few colors across similar cases unless the observations truly support it.
+6. Write one line that names the truth beneath the composure.
+7. If the line could apply to many people, reject it and sharpen it.
 
 Bad example:
 Color: Pink
