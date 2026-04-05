@@ -72,7 +72,7 @@ const allowedColors = [
   "Navy",
   "Sakura (Pink)",
   "Ivory",
-  "Charcoal",
+  "Grey/Silver",
   "Burgundy",
   "Dusty Rose",
   "Soft Blue",
@@ -153,7 +153,7 @@ Message: [one sentence only]
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      text: "Color: Charcoal\nMessage: You have been holding too much without letting anyone see the weight.",
+      text: "Color: Grey/Silver\nMessage: You have been holding too much without letting anyone see the weight.",
     });
   }
 });
