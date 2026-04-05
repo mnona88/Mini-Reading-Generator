@@ -1,11 +1,9 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/generate-reading.js", "use": "@vercel/node" },
-    { "src": "index.html", "use": "@vercel/static" }
+    { "src": "server.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/api/generate-reading", "methods": ["POST"], "dest": "/api/generate-reading.js" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/(.*)", "dest": "/server.js" }
   ]
 }
