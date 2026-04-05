@@ -136,6 +136,8 @@ function getReason(selectedColor, resultColor) {
     "Soft Blue->Midori": "You are softening, but need momentum."
   };
 
+  if (reasonMap[pair]) return reasonMap[pair];
+
   const fallbackByColor = {
     "Midori": "You need movement, renewal, and a looser grip.",
     "Soft Blue": "You need less noise and more mental space.",
@@ -149,7 +151,7 @@ function getReason(selectedColor, resultColor) {
     "Dark Blue": "You need honest rest and deeper quiet."
   };
 
-  return reasonMap[pair] || fallbackByColor[resultColor] || "You need a more balanced direction right now.";
+  return fallbackByColor[resultColor] || "You need a more balanced direction right now.";
 }
 
 function getTheme(resultColor, selectedColor) {
@@ -185,6 +187,8 @@ function getTheme(resultColor, selectedColor) {
     "Sakura->Ivory": "Keep it gentle"
   };
 
+  if (map[pair]) return map[pair];
+
   const fallbackByColor = {
     "Midori": "Grow again",
     "Soft Blue": "Need less noise",
@@ -198,7 +202,7 @@ function getTheme(resultColor, selectedColor) {
     "Dark Blue": "Rest more honestly"
   };
 
-  return map[pair] || fallbackByColor[resultColor] || "Return to yourself";
+  return fallbackByColor[resultColor] || "Return to yourself";
 }
 
 const SYSTEM_PROMPT = `
@@ -240,4 +244,18 @@ export default async function handler(req, res) {
     const dayInfluence = getDayInfluence(birthDate);
     const ranked = scoreColors(baseElement, safeSelectedColor, dayInfluence);
 
-    const resultColor = ranked
+    const resultColor = ranked[0]?.value || "Ivory";
+    const theme = getTheme(resultColor, safeSelectedColor);
+    const reason = getReason(safeSelectedColor, resultColor);
+
+    const userPrompt = `
+Allowed colors:
+${COLORS.map((c) => c.value).join(", ")}
+
+Birth date: ${birthDate || "Not provided"}
+Chosen color now: ${safeSelectedColor || "Not provided"}
+Base element: ${baseElement}
+Day influence: ${dayInfluence}
+Result color: ${resultColor}
+Reason: ${reason}
+Theme
