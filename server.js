@@ -39,35 +39,18 @@ const ELEMENT_TO_COLORS = {
   love: ["Sakura"]
 };
 
-const ELEMENT_LABELS = {
-  wood: "Wood",
-  fire: "Fire",
-  earth: "Earth",
-  metal: "Metal",
-  water: "Water",
-  love: "Love"
-};
-
 const COLOR_TO_ELEMENT = {
-  "Midori": "wood",
+  Midori: "wood",
   "Soft Blue": "wood",
-  "Burgundy": "fire",
+  Burgundy: "fire",
   "Burnt Orange": "fire",
-  "Rakuda": "earth",
-  "Ivory": "earth",
+  Rakuda: "earth",
+  Ivory: "earth",
   "Grey/Silver": "metal",
-  "Gold": "metal",
+  Gold: "metal",
   "Sumi Black": "water",
   "Dark Blue": "water",
-  "Sakura": "love"
-};
-
-const THEME_HINTS = {
-  "need-rest": "Rest and quiet recovery",
-  "need-clarity": "Clarity and mental order",
-  "need-confidence": "Confidence and self-trust",
-  "need-softness": "Softness and emotional ease",
-  "need-momentum": "Momentum and renewed movement"
+  Sakura: "love"
 };
 
 function parseBirthDate(value) {
@@ -77,15 +60,10 @@ function parseBirthDate(value) {
   return date;
 }
 
-/*
-  Simplified mapping:
-  - This is not orthodox Four Pillars.
-  - It is a lightweight symbolic model for product diagnosis.
-  - Month is used as a stable proxy to avoid fake precision.
-*/
+// 簡易ロジックです。厳密な四柱推命ではありません。
 function getBaseElementFromBirthDate(birthDate) {
   const date = parseBirthDate(birthDate);
-  if (!date) return null;
+  if (!date) return "earth";
 
   const month = date.getUTCMonth() + 1;
 
@@ -97,143 +75,113 @@ function getBaseElementFromBirthDate(birthDate) {
 }
 
 function getRecommendedColor(baseElement, selectedColor) {
-  const recommendedPool = ELEMENT_TO_COLORS[baseElement] || ["Ivory"];
+  const pool = ELEMENT_TO_COLORS[baseElement] || ["Ivory"];
 
-  if (!selectedColor) return recommendedPool[0];
+  if (!selectedColor) return pool[0];
 
   const selectedElement = COLOR_TO_ELEMENT[selectedColor];
-
-  if (!selectedElement) return recommendedPool[0];
-
-  // If the selected color already belongs to the user's balancing element,
-  // keep it and let the interpretation explain reinforcement rather than contrast.
   if (selectedElement === baseElement) return selectedColor;
 
-  return recommendedPool[0];
+  return pool[0];
 }
 
-function getGapSummary(baseElement, selectedColor, currentTheme) {
-  const selectedElement = COLOR_TO_ELEMENT[selectedColor] || null;
-  const explicitTheme = THEME_HINTS[currentTheme] || null;
+function getTheme(baseElement, selectedColor) {
+  const selectedElement = COLOR_TO_ELEMENT[selectedColor];
 
-  if (explicitTheme) return explicitTheme;
-
-  if (!selectedColor || !selectedElement || !baseElement) {
-    return "Returning to inner balance";
+  if (!selectedColor || !selectedElement) {
+    return "Balance";
   }
 
   if (selectedElement === baseElement) {
-    return "Reinforcing what already wants to emerge";
+    return "Return to yourself";
   }
 
   const pairKey = `${selectedElement}->${baseElement}`;
 
-  const gapMap = {
-    "fire->earth": "Settling intensity into steadiness",
-    "fire->water": "Cooling what has been overextended",
-    "fire->metal": "Turning force into clear decisions",
-    "fire->wood": "Redirecting passion into growth",
+  const map = {
+    "fire->earth": "Calm the intensity",
+    "fire->water": "Cool the excess",
+    "fire->metal": "Sharpen your focus",
+    "fire->wood": "Guide your momentum",
 
-    "wood->earth": "Grounding scattered growth",
-    "wood->water": "Restoring depth beneath movement",
-    "wood->metal": "Giving direction to possibility",
-    "wood->fire": "Activating what has stayed potential",
+    "wood->earth": "Ground your growth",
+    "wood->water": "Slow into depth",
+    "wood->metal": "Choose with clarity",
+    "wood->fire": "Move with courage",
 
-    "earth->fire": "Reawakening expression and courage",
-    "earth->water": "Making room for inner stillness",
-    "earth->metal": "Refining what has become too heavy",
-    "earth->wood": "Inviting renewal and flexibility",
+    "earth->fire": "Wake up expression",
+    "earth->water": "Rest more deeply",
+    "earth->metal": "Refine your priorities",
+    "earth->wood": "Allow renewal",
 
-    "metal->earth": "Softening pressure into stability",
-    "metal->water": "Creating space for reflection",
-    "metal->wood": "Loosening rigidity into growth",
-    "metal->fire": "Bringing warmth back into action",
+    "metal->earth": "Soften the pressure",
+    "metal->water": "Make room to feel",
+    "metal->wood": "Loosen the control",
+    "metal->fire": "Bring back warmth",
 
-    "water->earth": "Giving structure to deep feeling",
-    "water->fire": "Bringing hidden energy into motion",
-    "water->metal": "Sharpening what has stayed inward",
-    "water->wood": "Turning reflection into renewal",
+    "water->earth": "Steady your feelings",
+    "water->fire": "Bring hidden force forward",
+    "water->metal": "Think with precision",
+    "water->wood": "Turn inward growth outward",
 
-    "love->earth": "Returning tenderness to something solid",
-    "love->metal": "Bringing grace into clearer boundaries",
-    "love->water": "Making softness feel safe again",
-    "love->fire": "Allowing affection to become expression",
-    "love->wood": "Letting care become new growth"
+    "love->earth": "Make softness stable",
+    "love->metal": "Protect what matters",
+    "love->water": "Let tenderness rest",
+    "love->fire": "Express what you feel",
+    "love->wood": "Grow from the heart"
   };
 
-  return gapMap[pairKey] || "Returning to inner balance";
+  return map[pairKey] || "Return to balance";
 }
 
 const SYSTEM_PROMPT = `
-You are a precise luxury color diagnostic writer.
+You create a refined, minimal color result.
 
-You are not a fortune teller.
-You do not claim certainty, fate, medical truth, therapy, or guaranteed outcomes.
-You do not use mystical exaggeration.
+This is inspired by Four Pillars thinking, but uses a simplified elemental balance model.
+Do not claim certainty.
+Do not sound mystical.
+Do not explain the system.
+Do not use words like destiny, aura, universe, vibration, healing, manifest, 100%.
 
-Your job:
-- Interpret a structured symbolic color diagnosis
-- Keep the tone refined, elegant, emotionally accurate, and believable
-- Make the result feel premium and personal
-- Support product desirability without sounding salesy
+You must output exactly in this format:
 
-Important rules:
-- Use only the allowed colors exactly as written
-- Do not invent new colors
-- Do not say "100%", "destiny", "fate", "healing", "manifest", "aura", "vibration", or "universe"
-- Do not frame the user as broken
-- Present the result as a balancing insight, not a fixed truth
-- Keep it concise and expensive in tone
+Color: [allowed color only]
+Theme: [2 to 5 words]
+Message: [1 short sentence only, max 14 words]
 
-Output exactly in this format:
+Tone:
+- elegant
+- sharp
+- simple
+- emotionally accurate
+- expensive
+- memorable
 
-Recommended Color: [allowed color only]
-Present Theme: [max 6 words]
-Message: [1-2 sentences, elegant, grounded]
-Styling Suggestion: [1 sentence suggesting how to incorporate the color into daily life, wardrobe, accessory, robe, interior, etc.]
+The color must remain exactly the recommended color provided.
 `.trim();
 
 app.post("/api/generate-reading", async (req, res) => {
   try {
-    const {
-      birthDate = "",
-      selectedColor = "",
-      currentTheme = ""
-    } = req.body || {};
+    const { birthDate = "", selectedColor = "" } = req.body || {};
 
     const safeSelectedColor = ALLOWED_COLORS.includes(selectedColor) ? selectedColor : "";
-    const baseElement = getBaseElementFromBirthDate(birthDate) || "earth";
+    const baseElement = getBaseElementFromBirthDate(birthDate);
     const recommendedColor = getRecommendedColor(baseElement, safeSelectedColor);
-    const gapSummary = getGapSummary(baseElement, safeSelectedColor, currentTheme);
+    const theme = getTheme(baseElement, safeSelectedColor);
 
     const userPrompt = `
-Create a refined symbolic color reading using the structured logic below.
-
 Allowed colors:
 ${ALLOWED_COLORS.join(", ")}
 
-Inputs:
-- Birth date: ${birthDate || "Not provided"}
-- Base element from simplified logic: ${ELEMENT_LABELS[baseElement]}
-- Currently chosen color: ${safeSelectedColor || "Not provided"}
-- Present theme summary: ${gapSummary}
-- Recommended balancing color: ${recommendedColor}
+Birth date: ${birthDate || "Not provided"}
+Chosen color now: ${safeSelectedColor || "Not provided"}
+Recommended color: ${recommendedColor}
+Theme: ${theme}
 
-Interpretation rules:
-- The base element is the balancing anchor
-- The selected color reflects what the user is currently drawn toward
-- The gap between them should be framed as a present-life theme, not a flaw
-- Keep the writing premium, calm, and psychologically believable
-- The Recommended Color must remain exactly: ${recommendedColor}
-
-Good direction:
-- emotionally precise
-- restrained
-- luxurious
-- non-mystical
-- not generic
-
-Output exactly in the required format.
+Write one unforgettable result.
+Keep it very simple.
+The Color must remain exactly "${recommendedColor}".
+The Theme must remain exactly "${theme}".
 `.trim();
 
     const response = await client.responses.create({
@@ -242,25 +190,23 @@ Output exactly in the required format.
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: userPrompt }
       ],
-      temperature: 0.7,
-      max_output_tokens: 220
+      temperature: 0.6,
+      max_output_tokens: 80
     });
 
     const text =
       response.output_text?.trim() ||
-      `Recommended Color: ${recommendedColor}
-Present Theme: ${gapSummary}
-Message: What you need now is not more force, but a quieter return to what steadies you.
-Styling Suggestion: Bring this color into a robe, small accessory, or calm corner of your home.`;
+      `Color: ${recommendedColor}
+Theme: ${theme}
+Message: What you need now is less force and more quiet alignment.`;
 
     res.json({ text });
   } catch (error) {
     console.error("API error:", error);
     res.status(500).json({
-      text: `Recommended Color: Ivory
-Present Theme: Returning to inner balance
-Message: This is a moment to choose what steadies you, not what overwhelms you.
-Styling Suggestion: Introduce Ivory through something soft, close to the body, or quietly visible at home.`
+      text: `Color: Ivory
+Theme: Return to balance
+Message: Come back to what steadies you.`
     });
   }
 });
