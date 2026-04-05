@@ -16,116 +16,224 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+const ALLOWED_COLORS = [
+  "Midori",
+  "Soft Blue",
+  "Burgundy",
+  "Burnt Orange",
+  "Rakuda",
+  "Ivory",
+  "Grey/Silver",
+  "Gold",
+  "Sumi Black",
+  "Dark Blue",
+  "Sakura"
+];
+
+const ELEMENT_TO_COLORS = {
+  wood: ["Midori", "Soft Blue"],
+  fire: ["Burgundy", "Burnt Orange"],
+  earth: ["Rakuda", "Ivory"],
+  metal: ["Grey/Silver", "Gold"],
+  water: ["Sumi Black", "Dark Blue"],
+  love: ["Sakura"]
+};
+
+const ELEMENT_LABELS = {
+  wood: "Wood",
+  fire: "Fire",
+  earth: "Earth",
+  metal: "Metal",
+  water: "Water",
+  love: "Love"
+};
+
+const COLOR_TO_ELEMENT = {
+  "Midori": "wood",
+  "Soft Blue": "wood",
+  "Burgundy": "fire",
+  "Burnt Orange": "fire",
+  "Rakuda": "earth",
+  "Ivory": "earth",
+  "Grey/Silver": "metal",
+  "Gold": "metal",
+  "Sumi Black": "water",
+  "Dark Blue": "water",
+  "Sakura": "love"
+};
+
+const THEME_HINTS = {
+  "need-rest": "Rest and quiet recovery",
+  "need-clarity": "Clarity and mental order",
+  "need-confidence": "Confidence and self-trust",
+  "need-softness": "Softness and emotional ease",
+  "need-momentum": "Momentum and renewed movement"
+};
+
+function parseBirthDate(value) {
+  if (!value || typeof value !== "string") return null;
+  const date = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return null;
+  return date;
+}
+
+/*
+  Simplified mapping:
+  - This is not orthodox Four Pillars.
+  - It is a lightweight symbolic model for product diagnosis.
+  - Month is used as a stable proxy to avoid fake precision.
+*/
+function getBaseElementFromBirthDate(birthDate) {
+  const date = parseBirthDate(birthDate);
+  if (!date) return null;
+
+  const month = date.getUTCMonth() + 1;
+
+  if ([2, 3].includes(month)) return "wood";
+  if ([4, 5].includes(month)) return "fire";
+  if ([6, 7, 8].includes(month)) return "earth";
+  if ([9, 10].includes(month)) return "metal";
+  return "water";
+}
+
+function getRecommendedColor(baseElement, selectedColor) {
+  const recommendedPool = ELEMENT_TO_COLORS[baseElement] || ["Ivory"];
+
+  if (!selectedColor) return recommendedPool[0];
+
+  const selectedElement = COLOR_TO_ELEMENT[selectedColor];
+
+  if (!selectedElement) return recommendedPool[0];
+
+  // If the selected color already belongs to the user's balancing element,
+  // keep it and let the interpretation explain reinforcement rather than contrast.
+  if (selectedElement === baseElement) return selectedColor;
+
+  return recommendedPool[0];
+}
+
+function getGapSummary(baseElement, selectedColor, currentTheme) {
+  const selectedElement = COLOR_TO_ELEMENT[selectedColor] || null;
+  const explicitTheme = THEME_HINTS[currentTheme] || null;
+
+  if (explicitTheme) return explicitTheme;
+
+  if (!selectedColor || !selectedElement || !baseElement) {
+    return "Returning to inner balance";
+  }
+
+  if (selectedElement === baseElement) {
+    return "Reinforcing what already wants to emerge";
+  }
+
+  const pairKey = `${selectedElement}->${baseElement}`;
+
+  const gapMap = {
+    "fire->earth": "Settling intensity into steadiness",
+    "fire->water": "Cooling what has been overextended",
+    "fire->metal": "Turning force into clear decisions",
+    "fire->wood": "Redirecting passion into growth",
+
+    "wood->earth": "Grounding scattered growth",
+    "wood->water": "Restoring depth beneath movement",
+    "wood->metal": "Giving direction to possibility",
+    "wood->fire": "Activating what has stayed potential",
+
+    "earth->fire": "Reawakening expression and courage",
+    "earth->water": "Making room for inner stillness",
+    "earth->metal": "Refining what has become too heavy",
+    "earth->wood": "Inviting renewal and flexibility",
+
+    "metal->earth": "Softening pressure into stability",
+    "metal->water": "Creating space for reflection",
+    "metal->wood": "Loosening rigidity into growth",
+    "metal->fire": "Bringing warmth back into action",
+
+    "water->earth": "Giving structure to deep feeling",
+    "water->fire": "Bringing hidden energy into motion",
+    "water->metal": "Sharpening what has stayed inward",
+    "water->wood": "Turning reflection into renewal",
+
+    "love->earth": "Returning tenderness to something solid",
+    "love->metal": "Bringing grace into clearer boundaries",
+    "love->water": "Making softness feel safe again",
+    "love->fire": "Allowing affection to become expression",
+    "love->wood": "Letting care become new growth"
+  };
+
+  return gapMap[pairKey] || "Returning to inner balance";
+}
+
 const SYSTEM_PROMPT = `
-You are a highly precise symbolic reader.
+You are a precise luxury color diagnostic writer.
 
-You do not invent colors.
-You must choose only from the allowed color list provided by the user.
+You are not a fortune teller.
+You do not claim certainty, fate, medical truth, therapy, or guaranteed outcomes.
+You do not use mystical exaggeration.
 
-Your job is to identify the one color this person needs now based only on visible human observation.
+Your job:
+- Interpret a structured symbolic color diagnosis
+- Keep the tone refined, elegant, emotionally accurate, and believable
+- Make the result feel premium and personal
+- Support product desirability without sounding salesy
 
-Your lens is deeply informed by Japanese aesthetics:
-- What is restrained matters more than what is displayed
-- Composure often hides cost
-- Beauty is often the shape of what someone is enduring
-- The smallest visible choices can reveal the deepest emotional pattern
-- Ma matters: leave space, do not explain too much
+Important rules:
+- Use only the allowed colors exactly as written
+- Do not invent new colors
+- Do not say "100%", "destiny", "fate", "healing", "manifest", "aura", "vibration", or "universe"
+- Do not frame the user as broken
+- Present the result as a balancing insight, not a fixed truth
+- Keep it concise and expensive in tone
 
-You are not mystical, not therapeutic, and not generic.
-You are elegant, sharp, and quietly devastating.
+Output exactly in this format:
 
-Output format:
-Color: [must be chosen only from the allowed list]
-Message: [one line only]
-
-Rules:
-- The color must be selected only from the allowed color list
-- Never invent a new color
-- Do not favor commercially important colors unless they are the most precise match
-- Select the color with the best psychological fit, not the easiest or prettiest fit
-- The message must be 1 sentence only
-- Max 18 words
-- No generic praise
-- No vague spirituality
-- No fortune-teller language
-- No explanation of the color meaning
-- No labels beyond Color and Message
-- Make it feel expensive, restrained, and exact
-
-Forbidden words:
-lucky, aura, destiny, soulmate, twin flame, vibration, manifesting, universe, healing, energy field
-`;
+Recommended Color: [allowed color only]
+Present Theme: [max 6 words]
+Message: [1-2 sentences, elegant, grounded]
+Styling Suggestion: [1 sentence suggesting how to incorporate the color into daily life, wardrobe, accessory, robe, interior, etc.]
+`.trim();
 
 app.post("/api/generate-reading", async (req, res) => {
   try {
     const {
-      ageRange,
-      visibleImpression = [],
-      facialExpression = [],
-      bodyLanguage = [],
-      emotionalImpression = [],
+      birthDate = "",
+      selectedColor = "",
+      currentTheme = ""
     } = req.body || {};
 
-    const allowedColors = [
-      "Black",
-      "Rakuda (Camel)",
-      "Midori (Emerald Green)",
-      "Dark Blue",
-      "Sakura (Pink)",
-      "Ivory",
-      "Grey/Silver",
-      "Burgundy",
-      "Dusty Rose",
-      "Soft Blue",
-      "Burnt Orange",
-      "Gold"
-    ];
+    const safeSelectedColor = ALLOWED_COLORS.includes(selectedColor) ? selectedColor : "";
+    const baseElement = getBaseElementFromBirthDate(birthDate) || "earth";
+    const recommendedColor = getRecommendedColor(baseElement, safeSelectedColor);
+    const gapSummary = getGapSummary(baseElement, safeSelectedColor, currentTheme);
 
-const userPrompt = `
-Identify the one color this person needs now.
+    const userPrompt = `
+Create a refined symbolic color reading using the structured logic below.
 
-Question:
-"The Color You Need Now"
+Allowed colors:
+${ALLOWED_COLORS.join(", ")}
 
-Allowed color list:
-${allowedColors.join(", ")}
+Inputs:
+- Birth date: ${birthDate || "Not provided"}
+- Base element from simplified logic: ${ELEMENT_LABELS[baseElement]}
+- Currently chosen color: ${safeSelectedColor || "Not provided"}
+- Present theme summary: ${gapSummary}
+- Recommended balancing color: ${recommendedColor}
 
-Important rule:
-Do not favor any color because it is currently sold.
-Choose only the most psychologically precise color from the allowed list.
+Interpretation rules:
+- The base element is the balancing anchor
+- The selected color reflects what the user is currently drawn toward
+- The gap between them should be framed as a present-life theme, not a flaw
+- Keep the writing premium, calm, and psychologically believable
+- The Recommended Color must remain exactly: ${recommendedColor}
 
-Observations:
-- Age Range: ${ageRange || "Not provided"}
-- Visible Impression: ${visibleImpression.length ? visibleImpression.join(", ") : "None"}
-- Facial Expression: ${facialExpression.length ? facialExpression.join(", ") : "None"}
-- Body Language: ${bodyLanguage.length ? bodyLanguage.join(", ") : "None"}
-- Emotional Impression: ${emotionalImpression.length ? emotionalImpression.join(", ") : "None"}
+Good direction:
+- emotionally precise
+- restrained
+- luxurious
+- non-mystical
+- not generic
 
-Think silently before answering:
-
-1. Find the ONE thing this person is managing, suppressing, or carrying.
-2. Find the tension between how they appear and what they seem to need.
-3. Compare the allowed colors carefully and select the single most precise fit.
-4. Do not default to the currently sold colors unless they are clearly the strongest match.
-5. Avoid repeating the same few colors across similar cases unless the observations truly support it.
-6. Write one line that names the truth beneath the composure.
-7. If the line could apply to many people, reject it and sharpen it.
-
-Bad example:
-Color: Pink
-Message: You need more love in your life.
-
-Good example:
-Color: Burgundy
-Message: You have made composure look so natural that people no longer notice what it costs you.
-
-Good example:
-Color: Soft Blue
-Message: Your mind does not need more discipline. It needs less noise.
-
-Output exactly in this format:
-Color: [color from allowed list only]
-Message: [one sentence only]
+Output exactly in the required format.
 `.trim();
 
     const response = await client.responses.create({
@@ -134,19 +242,25 @@ Message: [one sentence only]
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: userPrompt }
       ],
-      temperature: 0.9,
-      max_output_tokens: 120
+      temperature: 0.7,
+      max_output_tokens: 220
     });
 
     const text =
       response.output_text?.trim() ||
-      "Color: Ivory\nMessage: You are not asking for more strength; you are asking for less to hold.";
+      `Recommended Color: ${recommendedColor}
+Present Theme: ${gapSummary}
+Message: What you need now is not more force, but a quieter return to what steadies you.
+Styling Suggestion: Bring this color into a robe, small accessory, or calm corner of your home.`;
 
     res.json({ text });
   } catch (error) {
     console.error("API error:", error);
     res.status(500).json({
-      text: "Color: Grey/Silver\nMessage: You have been holding too much without letting anyone see the weight."
+      text: `Recommended Color: Ivory
+Present Theme: Returning to inner balance
+Message: This is a moment to choose what steadies you, not what overwhelms you.
+Styling Suggestion: Introduce Ivory through something soft, close to the body, or quietly visible at home.`
     });
   }
 });
