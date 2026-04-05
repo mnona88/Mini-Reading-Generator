@@ -30,6 +30,7 @@ function parseBirthDate(value) {
   return date;
 }
 
+// 簡易ロジックです。厳密な四柱推命ではありません
 function getBaseElementFromBirthDate(birthDate) {
   const date = parseBirthDate(birthDate);
   if (!date) return "earth";
@@ -161,27 +162,35 @@ function getTheme(resultColor, selectedColor) {
     "Burgundy->Ivory": "Put it down",
     "Burgundy->Dark Blue": "Rest more deeply",
     "Burgundy->Grey/Silver": "Cut the excess",
+
     "Ivory->Burgundy": "Say it clearly",
     "Ivory->Gold": "Take up space",
     "Ivory->Midori": "Move again",
+
     "Dark Blue->Gold": "Be seen properly",
     "Dark Blue->Rakuda": "Come back down",
     "Dark Blue->Burgundy": "Stop swallowing it",
+
     "Sumi Black->Sakura": "Let softness stay",
     "Sumi Black->Ivory": "Rest without hiding",
     "Sumi Black->Soft Blue": "Need less noise",
+
     "Gold->Dark Blue": "Need less performance",
     "Gold->Rakuda": "Ground the pressure",
     "Gold->Soft Blue": "Quiet the mind",
+
     "Grey/Silver->Rakuda": "Soften the edges",
     "Grey/Silver->Sakura": "Let softness in",
     "Grey/Silver->Ivory": "Put it down",
+
     "Soft Blue->Gold": "Stop shrinking yourself",
     "Soft Blue->Burgundy": "Bring back fire",
     "Soft Blue->Midori": "Grow again",
+
     "Midori->Grey/Silver": "Choose cleanly",
     "Midori->Ivory": "Steady yourself",
     "Midori->Dark Blue": "Rest more honestly",
+
     "Sakura->Grey/Silver": "Protect your softness",
     "Sakura->Sumi Black": "Hold your center",
     "Sakura->Ivory": "Keep it gentle"
@@ -229,6 +238,7 @@ Message: [1 sentence only, max 9 words]
 The Color must remain exactly the provided result.
 The Reason must remain logically aligned with the provided reason.
 The Theme must remain exactly the provided theme.
+The Message should feel like a private truth.
 `;
 
 export default async function handler(req, res) {
@@ -237,6 +247,12 @@ export default async function handler(req, res) {
   }
 
   try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({
+        text: "Color: Ivory\nReason: OPENAI_API_KEY is missing.\nTheme: Fix configuration\nMessage: The server is not configured yet."
+      });
+    }
+
     const { birthDate = "", selectedColor = "" } = req.body || {};
 
     const safeSelectedColor = COLOR_BY_VALUE[selectedColor] ? selectedColor : "";
@@ -258,4 +274,48 @@ Base element: ${baseElement}
 Day influence: ${dayInfluence}
 Result color: ${resultColor}
 Reason: ${reason}
-Theme
+Theme: ${theme}
+
+Write one result that hits hard immediately.
+
+Rules:
+- Color must stay exactly "${resultColor}"
+- Reason must stay logically aligned with: "${reason}"
+- Theme must stay exactly "${theme}"
+- Message: 1 sentence only
+- Max 9 words
+- Very clear
+- Very simple
+- No fluff
+- No advice tone
+`.trim();
+
+    const response = await client.responses.create({
+      model: "gpt-4o",
+      input: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.8,
+      max_output_tokens: 90
+    });
+
+    const text =
+      response.output_text?.trim() ||
+      `Color: ${resultColor}
+Reason: ${reason}
+Theme: ${theme}
+Message: You have been carrying too much too well.`;
+
+    return res.status(200).json({ text });
+  } catch (error) {
+    console.error("API error:", error);
+
+    return res.status(500).json({
+      text: `Color: Ivory
+Reason: You need simplicity, relief, and room to breathe.
+Theme: Put it down
+Message: Something broke in the function.`
+    });
+  }
+}
