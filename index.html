@@ -792,7 +792,43 @@ function getChipValue(key) {
 
 /* ─── Build prompts ───────────────────────────────── */
 function buildSystemPrompt() {
-  return `You are a refined, perceptive reader writing for an elegant, discerning audience. Your prose carries the quiet precision of someone who has spent years reading the gap between what people present and what they carry. Your writing is spare, intelligent, and occasionally stops the reader cold — not because it is dramatic, but because it named something true they had never articulated. You never flatter. You observe. You do not perform insight; you deliver it.`;
+  return `You write short, sharp, personalized mini readings in elegant English.
+
+Your writing must feel:
+- clear
+- specific
+- emotionally precise
+- slightly chilling in a sophisticated way
+- easy to understand in one reading
+
+The reader should think:
+"How did you see that so fast?"
+
+Core rules:
+- Be direct. No rambling.
+- Use simple, natural English.
+- No vague metaphors unless they land immediately.
+- No generic spirituality.
+- No therapy language.
+- No flattery.
+- No fortune teller clichés.
+- No horoscope tone.
+- No dramatic prophecy.
+- No filler.
+
+Forbidden words and concepts:
+spirits, destiny, past lives, twin flames, soulmates, curses, alignment, universe, vibration, manifesting
+
+Writing rules:
+- Start with the strongest observation immediately.
+- Say what people feel, notice, or sense.
+- Name the hidden tension underneath it.
+- End with one short, elegant suggestion.
+- Every line must feel personal.
+- If a sentence could apply to almost anyone, do not write it.
+
+Target effect:
+short, clean, accurate, and "wow."`;
 }
 
 function buildUserPrompt() {
@@ -810,12 +846,19 @@ function buildUserPrompt() {
   const emotion    = getChipValue('emotion');
 
   const lengthInstr = lengthPref === 'short'
-    ? 'Write one compact reading of exactly 80–120 words. Keep the full arc: insight → emotional meaning → gentle suggestion. Do not break into paragraphs.'
-    : 'Write up to 3 short paragraphs. Keep each paragraph lean and visually clean. Do not pad.';
+    ? `Write exactly 3 sentences.
+Sentence 1: what people sense / notice.
+Sentence 2: the hidden truth underneath.
+Sentence 3: one soft, elegant suggestion.
+Keep total length between 45 and 75 words.`
+    : `Write 4 to 6 short sentences total.
+No more than 2 short paragraphs.
+Keep total length between 70 and 120 words.
+Every sentence must be clear and hit immediately.`;
 
   const productInstr = useProduct
-    ? `At a natural moment — never forced — draw a subtle, sensory connection between what you observe and the quality of a ${product}. One sentence maximum. It must feel like a natural extension of the reading, not a recommendation.`
-    : '';
+    ? `If it fits naturally, add one short sentence or phrase that subtly connects the reading to ${product}. Do not sell. Do not recommend. Make it feel like a quiet aesthetic extension of the reading.`
+    : `Do not mention any product.`;
 
   const parts = [];
   if (selectedAge) parts.push(`Age range: ${selectedAge}`);
@@ -827,52 +870,47 @@ function buildUserPrompt() {
   if (emotion)     parts.push(`Emotional impression: ${emotion}`);
   if (notes)       parts.push(`Additional notes: ${notes}`);
 
-  return `You are writing a short personalized reading. The question the subject has chosen is: "${question}"
+  return `Write one personalized mini reading.
 
-Observations:
-${parts.length ? parts.join('\n') : '(minimal observations — work from the question alone)'}
+Chosen question:
+"${question}"
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ACCURACY IMPERATIVE
+Observed details:
+${parts.length ? parts.join('\n') : '(minimal observations — rely on the question and create a clean, sharp reading)'}
 
-The reading must feel uncannily precise — not merely beautiful. Before writing a single word, identify the following internally:
+Important:
+1. Find the one strongest contradiction, restraint, or hidden truth in the observations.
+2. Make that the center of the reading.
+3. Be concrete, not abstract.
+4. The reading must feel precise within seconds.
+5. Keep it elegant, but do not make it ornate.
+6. The best line should feel like something true that other people notice but never say.
 
-1. ONE specific tension, contradiction, or form of restraint visible in the observations. This is the spine of the reading. Name it concretely in the first paragraph — not as a feeling, as a fact.
+Required structure:
+- First: what people sense / notice / feel
+- Second: what that actually means underneath
+- Last: one quiet suggestion
 
-2. Something that is privately true about this person — something people sense but never say aloud. Make this the emotional pivot. If you cannot name it specifically, you have not read carefully enough.
+Tone:
+- sharp
+- elegant
+- restrained
+- perceptive
+- simple
+- memorable
 
-3. Link at least one physical detail (how she dresses, how she holds herself, her expression) directly to an emotional or psychological state. Appearance and inner life are not separate observations — show the connection explicitly.
+Avoid:
+- long openings
+- poetic over-explaining
+- soft vague language
+- anything generic
+- anything cheesy
 
-4. After your first sentence, stay concrete. If you drift into abstraction, return immediately to something specific.
-
-5. Every sentence must be earned by what was observed. If a line could describe anyone, cut it.
-
-6. The strongest lines feel like: "That is exactly what people sense about her and never say out loud." Aim for that.
-
-7. The reading lives in the gap between what she projects and what she holds back. Work that gap from the first line.
-
-8. Precision over beauty. If the choice is between an accurate line and a pretty one, choose accuracy.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-TONE & CRAFT
-
-- Elegant, observant, restrained — not cold
-- Feminine but precise — softness without blur
-- Slightly haunting in a sophisticated way — not mystical, not therapeutic, not theatrical
-- Forbidden: fortune-teller language, therapy language, horoscope clichés, hyperbole, vague flattery
-- Forbidden words and concepts: spirits, destiny, past lives, twin flames, soulmates, curses, alignment, universe, vibration, manifesting
-- No exclamation marks. No purple prose.
-- Do not open with "You" or "There is" — find a more precise entry point
-- End with one quiet, concrete suggestion or image — something to lean into, not a prescription
-- Write in natural, elegant English
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-LENGTH:
 ${lengthInstr}
 
-${productInstr ? `PRODUCT CONNECTION:\n${productInstr}` : ''}
+${productInstr}
 
-Output only the reading text. No titles, no labels, no preamble.`;
+Output only the reading text. No title. No bullets. No labels.`;
 }
 
 /* ─── Validate ────────────────────────────────────── */
@@ -912,7 +950,6 @@ async function generateReading() {
   setTimeout(() => outputSec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
 
   try {
-    // ── All AI calls go through the backend — no API keys in the browser ──
     const response = await fetch('/api/generate-reading', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -927,7 +964,6 @@ async function generateReading() {
       throw new Error(body?.error ?? `Server error ${response.status}`);
     }
 
-    // Read the SSE stream the backend sends back
     const reader  = response.body.getReader();
     const decoder = new TextDecoder();
     let fullText  = '';
@@ -947,10 +983,8 @@ async function generateReading() {
         try {
           const parsed = JSON.parse(raw);
 
-          // Surface a backend-forwarded error
           if (parsed.error) throw new Error(parsed.error);
 
-          // OpenAI chunk format: { text: "..." }  (shaped by server.js)
           if (parsed.text) {
             fullText += parsed.text;
             renderReading(readingEl, fullText, true);
